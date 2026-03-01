@@ -75,24 +75,15 @@ export default function EventDetailsPage() {
       {/* Tab Content */}
       {activeTab === 'overview' && (
         <div className="space-y-8">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Stats Grid (priority order) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             <div className="bg-surface p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                <span className="material-symbols-outlined">group</span>
+                <span className="material-symbols-outlined">monitoring</span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-text-muted">Total RSVPs</p>
-                <h3 className="text-2xl text-text-main">{stats.totalRSVPs}</h3>
-              </div>
-            </div>
-            <div className="bg-surface p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-green-500/10 text-green-600 flex items-center justify-center">
-                <span className="material-symbols-outlined">check_circle</span>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-text-muted">Attending</p>
-                <h3 className="text-2xl text-text-main">{stats.attending}</h3>
+                <p className="text-sm font-semibold text-text-muted">RSVP Rate</p>
+                <h3 className="text-2xl text-text-main">{stats.rsvpRate}%</h3>
               </div>
             </div>
             <div className="bg-surface p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
@@ -100,7 +91,7 @@ export default function EventDetailsPage() {
                 <span className="material-symbols-outlined">qr_code_scanner</span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-text-muted">Checked In</p>
+                <p className="text-sm font-semibold text-text-muted">Actual Check-ins</p>
                 <h3 className="text-2xl text-text-main">{stats.checkedIn}</h3>
               </div>
             </div>
@@ -111,6 +102,24 @@ export default function EventDetailsPage() {
               <div>
                 <p className="text-sm font-semibold text-text-muted">Media Uploads</p>
                 <h3 className="text-2xl text-text-main">{stats.mediaCount}</h3>
+              </div>
+            </div>
+            <div className="bg-surface p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-green-500/10 text-green-600 flex items-center justify-center">
+                <span className="material-symbols-outlined">groups</span>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-text-muted">Plus-ones</p>
+                <h3 className="text-2xl text-text-main">{stats.plusOnes}</h3>
+              </div>
+            </div>
+            <div className="bg-surface p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-600 flex items-center justify-center">
+                <span className="material-symbols-outlined">trending_down</span>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-text-muted">No-show Rate</p>
+                <h3 className="text-2xl text-text-main">{stats.noShowRate}%</h3>
               </div>
             </div>
           </div>

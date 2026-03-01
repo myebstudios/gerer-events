@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { motion } from 'framer-motion';
+import { resolveTemplateTone } from '../../lib/catalog';
 
 export default function UploadPage() {
   const { id } = useParams();
@@ -108,7 +109,7 @@ export default function UploadPage() {
   if (event === undefined) return <div className="flex h-screen items-center justify-center bg-background">Loading...</div>;
   if (!event) return <div className="flex h-screen items-center justify-center bg-background">Event not found</div>;
 
-  const template = event.templateId || 'minimal';
+  const template = resolveTemplateTone(event.templateId);
 
   // Template Styles
   const templateStyles = {

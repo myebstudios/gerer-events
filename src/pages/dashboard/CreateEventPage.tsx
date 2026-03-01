@@ -4,12 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { motion } from 'framer-motion';
+import { EVENT_TYPES, TEMPLATE_CATALOG, type EventType } from '../../lib/catalog';
 
-const TEMPLATES = [
-  { id: 'minimal', name: 'Minimal Modern', color: '#007BFF', icon: 'crop_square' },
-  { id: 'playful', name: 'Playful Vibrant', color: '#FF4F5A', icon: 'celebration' },
-  { id: 'elegant', name: 'Elegant Classic', color: '#111827', icon: 'auto_awesome' },
-];
 
 export default function CreateEventPage() {
   const navigate = useNavigate();
@@ -20,8 +16,8 @@ export default function CreateEventPage() {
     date: '',
     location: '',
     description: '',
-    event_type: 'party',
-    templateId: 'minimal',
+    event_type: 'wedding' as EventType,
+    templateId: 'eternal-vows',
   });
 
   const createEvent = useMutation((api as any).events.createEvent);
@@ -105,13 +101,20 @@ export default function CreateEventPage() {
                   <label className="text-sm font-semibold text-text-main">Event Type</label>
                   <select
                     value={formData.event_type}
-                    onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
+                    onChange={(e) => {
+                      const eventType = e.target.value as EventType;
+                      const firstTemplate = TEMPLATE_CATALOG.find((t) => t.supportedEventTypes.includes(eventType));
+                      setFormData({
+                        ...formData,
+                        event_type: eventType,
+                        templateId: firstTemplate?.id ?? formData.templateId,
+                      });
+                    }}
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main appearance-none"
                   >
-                    <option value="party">Party</option>
-                    <option value="wedding">Wedding</option>
-                    <option value="corporate">Corporate</option>
-                    <option value="other">Other</option>
+                    {EVENT_TYPES.map((eventType) => (
+                      <option key={eventType.id} value={eventType.id}>{eventType.label}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -148,8 +151,8 @@ export default function CreateEventPage() {
               <h2 className="text-2xl mb-2">Choose a Template</h2>
               <p className="text-text-muted mb-6">Select a theme for your public event page. You can customize this later.</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {TEMPLATES.map((template) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {TEMPLATE_CATALOG.filter((template) => template.supportedEventTypes.includes(formData.event_type as EventType)).map((template) => (
                   <div 
                     key={template.id}
                     onClick={() => setFormData({ ...formData, templateId: template.id })}

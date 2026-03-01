@@ -15,6 +15,7 @@ import RSVPPage from './pages/public/RSVPPage';
 import QRPassPage from './pages/public/QRPassPage';
 import UploadPage from './pages/public/UploadPage';
 import CheckInPage from './pages/dashboard/CheckInPage';
+import QuickQRPage from './pages/dashboard/QuickQRPage';
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="events/new" element={<CreateEventPage />} />
           <Route path="events/:id" element={<EventDetailsPage />} />
           <Route path="events/:id/checkin" element={<CheckInPage />} />
+          <Route path="tools/quick-qr" element={<QuickQRPage />} />
         </Route>
 
         {/* Public Event Pages */}

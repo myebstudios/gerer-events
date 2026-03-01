@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LogOut, Calendar, Plus, Settings } from 'lucide-react';
+import { LogOut, Calendar, Plus, QrCode } from 'lucide-react';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -52,6 +52,13 @@ export default function DashboardLayout() {
             >
               <Plus className="h-4 w-4" />
               Create Event
+            </Link>
+            <Link
+              to="/dashboard/tools/quick-qr"
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${location.pathname === '/dashboard/tools/quick-qr' ? 'bg-espresso text-ivory' : 'text-espresso/70 hover:bg-gold/10 hover:text-espresso'}`}
+            >
+              <QrCode className="h-4 w-4" />
+              Quick QR
             </Link>
           </nav>
         </div>

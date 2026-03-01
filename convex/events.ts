@@ -49,11 +49,22 @@ export const getEventStats = query({
       .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
       .collect();
 
+    const yes = guests.filter(g => g.attendanceStatus === "yes");
+    const no = guests.filter(g => g.attendanceStatus === "no");
+    const maybe = guests.filter(g => g.attendanceStatus === "maybe");
+    const checkedIn = guests.filter(g => g.checkedIn);
+    const plusOnes = guests.reduce((acc, g) => acc + (g.plusOnes || 0), 0);
+
     return {
       totalRSVPs: guests.length,
-      attending: guests.filter(g => g.attendanceStatus === "yes").length,
-      checkedIn: guests.filter(g => g.checkedIn).length,
+      rsvpRate: guests.length === 0 ? 0 : Math.round((yes.length / guests.length) * 100),
+      checkedIn: checkedIn.length,
       mediaCount: media.length,
+      plusOnes,
+      noShowRate: yes.length === 0 ? 0 : Math.round(((yes.length - checkedIn.length) / yes.length) * 100),
+      attending: yes.length,
+      declined: no.length,
+      maybe: maybe.length,
     };
   },
 });

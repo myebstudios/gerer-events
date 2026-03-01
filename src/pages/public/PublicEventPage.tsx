@@ -4,6 +4,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import { resolveTemplateTone } from '../../lib/catalog';
 
 export default function PublicEventPage() {
   const { id } = useParams();
@@ -12,7 +13,7 @@ export default function PublicEventPage() {
   if (event === undefined) return <div className="flex h-screen items-center justify-center bg-background">Loading...</div>;
   if (!event) return <div className="flex h-screen items-center justify-center bg-background">Event not found</div>;
 
-  const template = event.templateId || 'minimal';
+  const template = resolveTemplateTone(event.templateId);
 
   // Template Styles
   const templateStyles = {

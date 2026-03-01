@@ -4,6 +4,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion } from 'framer-motion';
+import { resolveTemplateTone } from '../../lib/catalog';
 import { format } from 'date-fns';
 
 export default function QRPassPage() {
@@ -15,7 +16,7 @@ export default function QRPassPage() {
   if (guest === undefined || event === undefined) return <div className="flex h-screen items-center justify-center bg-background">Loading...</div>;
   if (!guest || !event) return <div className="flex h-screen items-center justify-center bg-background">Pass not found</div>;
 
-  const template = event.templateId || 'minimal';
+  const template = resolveTemplateTone(event.templateId);
 
   // Template Styles
   const templateStyles = {
