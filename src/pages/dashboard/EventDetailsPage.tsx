@@ -19,7 +19,7 @@ export default function EventDetailsPage() {
   if (event === undefined || stats === undefined || guests === undefined || media === undefined) return <div className="p-8">Loading...</div>;
   if (!event) return <div className="p-8">Event not found</div>;
 
-  const publicUrl = `${window.location.origin}/e/${event._id}`;
+  const publicUrl = new URL(`/e/${event._id}`, window.location.origin).toString();
 
   return (
     <div className="p-8 lg:p-12 max-w-7xl mx-auto">
