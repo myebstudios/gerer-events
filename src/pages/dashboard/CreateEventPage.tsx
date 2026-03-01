@@ -5,6 +5,7 @@ import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { motion } from 'framer-motion';
 import { EVENT_TYPES, TEMPLATE_CATALOG, type EventType } from '../../lib/catalog';
+import { Button, Input, Select, SelectItem, Textarea, Card, CardBody } from '@heroui/react';
 
 
 export default function CreateEventPage() {
@@ -69,7 +70,7 @@ export default function CreateEventPage() {
         <div className={`flex-1 h-2 rounded-full ${step >= 2 ? 'bg-primary' : 'bg-border'}`}></div>
       </div>
 
-      <div className="bg-surface rounded-3xl shadow-sm border border-border p-8 md:p-12">
+      <Card className="bg-surface rounded-3xl shadow-sm border border-border p-2"><CardBody className="p-8 md:p-12">
         <form onSubmit={handleSubmit} className="space-y-8">
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
@@ -77,32 +78,33 @@ export default function CreateEventPage() {
               
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-text-main">Event Title</label>
-                <input
-                  required
+                <Input
+                  isRequired
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onValueChange={(val) => setFormData({ ...formData, title: val })}
                   placeholder="e.g., Sarah's 30th Birthday Bash"
-                  className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main"
+                  variant="bordered"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-text-main">Date & Time</label>
-                  <input
+                  <Input
                     type="datetime-local"
-                    required
+                    isRequired
                     value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main"
+                    onValueChange={(val) => setFormData({ ...formData, date: val })}
+                    variant="bordered"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-text-main">Event Type</label>
-                  <select
-                    value={formData.event_type}
-                    onChange={(e) => {
-                      const eventType = e.target.value as EventType;
+                  <Select
+                    selectedKeys={[formData.event_type]}
+                    onSelectionChange={(keys) => {
+                      const eventType = Array.from(keys)[0] as EventType;
+                      if (!eventType) return;
                       const firstTemplate = TEMPLATE_CATALOG.find((t) => t.supportedEventTypes.includes(eventType));
                       setFormData({
                         ...formData,
@@ -110,24 +112,24 @@ export default function CreateEventPage() {
                         templateId: firstTemplate?.id ?? formData.templateId,
                       });
                     }}
-                    className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main appearance-none"
+                    variant="bordered"
                   >
                     {EVENT_TYPES.map((eventType) => (
-                      <option key={eventType.id} value={eventType.id}>{eventType.label}</option>
+                      <SelectItem key={eventType.id}>{eventType.label}</SelectItem>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-text-main">Location</label>
                 <div className="relative">
-                  <input
-                    required
+                  <Input
+                    isRequired
                     value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    onValueChange={(val) => setFormData({ ...formData, location: val })}
                     placeholder="Venue Name, City"
-                    className="w-full bg-background border border-border rounded-xl px-4 py-3 pl-11 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main"
+                    variant="bordered"
                   />
                   <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">location_on</span>
                 </div>
@@ -135,12 +137,12 @@ export default function CreateEventPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-text-main">Description (Optional)</label>
-                <textarea
+                <Textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onValueChange={(val) => setFormData({ ...formData, description: val })}
                   placeholder="Tell your guests what to expect..."
-                  rows={4}
-                  className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main resize-none"
+                  minRows={4}
+                  variant="bordered"
                 />
               </div>
             </motion.div>
@@ -177,28 +179,17 @@ export default function CreateEventPage() {
 
           <div className="pt-6 border-t border-border flex justify-between items-center">
             {step === 2 ? (
-              <button 
-                type="button" 
-                onClick={() => setStep(1)}
-                className="px-6 py-3 text-sm font-semibold text-text-muted hover:text-text-main transition-colors"
-              >
-                Back
-              </button>
+              <Button type="button" variant="light" onPress={() => setStep(1)} className="font-semibold">Back</Button>
             ) : (
               <div></div> // Spacer
             )}
             
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="bg-primary text-white hover:bg-primary-hover transition-all px-8 py-3 rounded-xl text-sm font-semibold disabled:opacity-70 flex items-center justify-center gap-2 shadow-sm"
-            >
+            <Button type="submit" color="primary" isDisabled={loading} className="font-semibold">
               {step === 1 ? 'Continue' : (loading ? 'Creating...' : 'Create Event')}
-              {step === 1 && <span className="material-symbols-outlined text-sm">arrow_forward</span>}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
+      </CardBody></Card>
     </div>
   );
 }

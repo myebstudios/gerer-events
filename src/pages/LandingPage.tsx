@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Button, Card, CardBody } from '@heroui/react';
 import { motion } from 'framer-motion';
 
 export default function LandingPage() {
@@ -18,7 +18,7 @@ export default function LandingPage() {
               <a className="text-ivory hover:text-gold text-sm uppercase tracking-widest transition-colors" href="#">Templates</a>
               <a className="text-ivory hover:text-gold text-sm uppercase tracking-widest transition-colors" href="#">Pricing</a>
               <Link className="text-ivory hover:text-gold text-sm uppercase tracking-widest transition-colors" to="/login">Log In</Link>
-              <Link className="bg-gold text-espresso hover:bg-[#b09358] transition-all px-6 py-2 rounded-none uppercase text-xs font-bold tracking-widest" to="/login">Start Planning</Link>
+              <Button as={Link as any} to="/login" color="primary" variant="solid" className="uppercase text-xs font-bold tracking-widest">Start Planning</Button>
             </div>
             <div className="md:hidden">
               <button className="text-ivory">
@@ -52,9 +52,7 @@ export default function LandingPage() {
             <div className="h-[1px] w-12 bg-gold"></div>
           </div>
           <div className="flex flex-col md:flex-row gap-6 justify-center mt-10">
-            <Link className="bg-gold text-espresso hover:bg-[#b09358] transition-all px-10 py-4 text-sm font-bold tracking-widest uppercase hover:shadow-[0_0_20px_rgba(200,169,107,0.3)]" to="/login">
-              Create Your Event
-            </Link>
+            <Button as={Link as any} to="/login" color="primary" className="px-10 py-4 text-sm font-bold tracking-widest uppercase">Create Your Event</Button>
             <a className="border border-gold text-gold hover:bg-gold hover:text-espresso transition-all px-10 py-4 text-sm font-bold tracking-widest uppercase backdrop-blur-sm" href="#">
               View Demo
             </a>

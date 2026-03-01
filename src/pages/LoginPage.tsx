@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { Button, Input, Card, CardBody, Alert } from '@heroui/react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -93,13 +94,14 @@ export default function LoginPage() {
             
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-espresso/70">Email Address</label>
-              <input
+              <Input
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full border-b-2 border-espresso/20 bg-transparent py-3 px-0 text-espresso placeholder-espresso/30 focus:border-gold focus:outline-none focus:ring-0 transition-colors rounded-none"
+                onValueChange={setEmail}
+                variant="bordered"
+                radius="sm"
+                isRequired
               />
             </div>
             
@@ -110,23 +112,25 @@ export default function LoginPage() {
                   <a href="#" className="text-xs text-gold hover:text-clay transition-colors">Forgot Password?</a>
                 )}
               </div>
-              <input
+              <Input
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full border-b-2 border-espresso/20 bg-transparent py-3 px-0 text-espresso placeholder-espresso/30 focus:border-gold focus:outline-none focus:ring-0 transition-colors rounded-none"
+                onValueChange={setPassword}
+                variant="bordered"
+                radius="sm"
+                isRequired
               />
             </div>
             
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-espresso text-gold hover:bg-cocoa transition-all py-4 text-sm font-bold tracking-widest uppercase mt-8 disabled:opacity-70"
+            <Button
+              type="submit"
+              isDisabled={loading}
+              color="primary"
+              className="w-full mt-8 font-bold tracking-widest uppercase"
             >
               {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-12 text-center">
