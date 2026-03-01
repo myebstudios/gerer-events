@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { Button, Input, Card, CardBody } from '@heroui/react';
 
 export default function QuickQRPage() {
   const [value, setValue] = React.useState('https://gerer-events.netlify.app');
@@ -31,14 +32,15 @@ export default function QuickQRPage() {
         Generate a generic event QR for flyers, posters, or quick sharing.
       </p>
 
-      <div className="bg-surface rounded-3xl border border-border p-8 space-y-6">
+      <Card className="bg-surface rounded-3xl border border-border p-2"><CardBody className="space-y-6 p-8">
         <div className="space-y-2">
           <label className="text-sm font-semibold text-text-main">URL or text</label>
-          <input
+          <Input
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onValueChange={setValue}
             placeholder="https://your-event-link"
-            className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-text-main"
+            variant="bordered"
+            radius="md"
           />
         </div>
 
@@ -46,14 +48,11 @@ export default function QuickQRPage() {
           <div className="bg-white p-4 rounded-xl shadow-sm">
             <QRCodeSVG value={value || ' '} size={220} level="H" />
           </div>
-          <button
-            onClick={handleDownload}
-            className="bg-primary text-white hover:bg-primary-hover transition-all px-6 py-3 rounded-xl text-sm font-semibold"
-          >
+          <Button color="primary" onPress={handleDownload} className="font-semibold">
             Download QR
-          </button>
+          </Button>
         </div>
-      </div>
+      </CardBody></Card>
     </div>
   );
 }
