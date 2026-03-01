@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { LogOut, Calendar, Plus, QrCode } from 'lucide-react';
+import { Button, Card, CardBody } from '@heroui/react';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -73,13 +74,14 @@ export default function DashboardLayout() {
               <p className="text-xs text-clay">Pro Plan</p>
             </div>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="flex w-full items-center gap-3 px-4 py-2 text-sm font-medium text-espresso/70 hover:text-red-600 hover:bg-red-50 transition-colors"
+          <Button
+            onPress={handleSignOut}
+            variant="light"
+            className="w-full justify-start text-espresso/70 hover:text-red-600"
+            startContent={<LogOut className="h-4 w-4" />}
           >
-            <LogOut className="h-4 w-4" />
             Sign Out
-          </button>
+          </Button>
         </div>
       </aside>
 

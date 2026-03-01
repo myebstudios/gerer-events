@@ -4,6 +4,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { format } from 'date-fns';
 import { QRCodeSVG } from 'qrcode.react';
+import { Button, Input, Card, CardBody } from '@heroui/react';
 
 export default function EventDetailsPage() {
   const { id } = useParams();
@@ -41,12 +42,8 @@ export default function EventDetailsPage() {
           </div>
         </div>
         <div className="flex gap-4">
-          <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="bg-surface border border-border text-text-main hover:border-primary hover:text-primary transition-all px-6 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm">
-            <span className="material-symbols-outlined text-sm">open_in_new</span> View Public Page
-          </a>
-          <Link to={`/dashboard/events/${event._id}/checkin`} className="bg-primary text-white hover:bg-primary-hover transition-all px-6 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm">
-            <span className="material-symbols-outlined text-sm">qr_code_scanner</span> Check-in Scanner
-          </Link>
+          <Button as="a" href={publicUrl} target="_blank" rel="noopener noreferrer" variant="bordered" className="text-sm font-semibold" startContent={<span className="material-symbols-outlined text-sm">open_in_new</span>}>View Public Page</Button>
+          <Button as={Link as any} to={`/dashboard/events/${event._id}/checkin`} color="primary" className="text-sm font-semibold" startContent={<span className="material-symbols-outlined text-sm">qr_code_scanner</span>}>Check-in Scanner</Button>
         </div>
       </div>
 
@@ -143,22 +140,23 @@ export default function EventDetailsPage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <div className="relative flex-1">
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">link</span>
-                <input
+                <Input
                   type="text"
-                  readOnly
+                  isReadOnly
                   value={publicUrl}
-                  className="w-full bg-background border border-border rounded-xl py-3 pl-12 pr-4 text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+                  variant="bordered"
                 />
               </div>
-              <button 
-                onClick={() => {
+              <Button
+                onPress={() => {
                   navigator.clipboard.writeText(publicUrl);
                   alert('Link copied to clipboard!');
                 }}
-                className="bg-text-main text-white hover:bg-text-main/90 transition-all px-8 py-3 rounded-xl text-sm font-semibold whitespace-nowrap shadow-sm"
+                color="primary"
+                className="text-sm font-semibold whitespace-nowrap"
               >
                 Copy Link
-              </button>
+              </Button>
             </div>
 
             {showQR && (

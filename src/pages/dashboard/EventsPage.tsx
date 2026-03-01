@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { format } from 'date-fns';
+import { Card, CardBody, Button } from '@heroui/react';
 
 export default function EventsPage() {
   const userId = localStorage.getItem('userId');
@@ -18,15 +19,12 @@ export default function EventsPage() {
           <h1 className="font-serif text-3xl md:text-4xl text-espresso mb-2">Dashboard</h1>
           <p className="text-clay">Welcome back. Here's an overview of your events.</p>
         </div>
-        <Link to="/dashboard/events/new" className="bg-espresso text-gold hover:bg-cocoa transition-all px-6 py-3 text-sm font-bold tracking-widest uppercase inline-flex items-center justify-center gap-2">
-          <span className="material-symbols-outlined text-lg">add</span>
-          Create Event
-        </Link>
+        <Button as={Link as any} to="/dashboard/events/new" color="primary" className="text-sm font-bold tracking-widest uppercase" startContent={<span className="material-symbols-outlined text-lg">add</span>}>Create Event</Button>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="bg-ivory p-6 border border-gold/20 shadow-sm">
+        <Card className="bg-ivory border border-gold/20 shadow-sm"><CardBody className="p-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center text-gold">
               <span className="material-symbols-outlined">event</span>
@@ -36,8 +34,8 @@ export default function EventsPage() {
               <h3 className="font-serif text-3xl text-espresso">{stats.totalEvents}</h3>
             </div>
           </div>
-        </div>
-        <div className="bg-ivory p-6 border border-gold/20 shadow-sm">
+        </CardBody></Card>
+        <Card className="bg-ivory border border-gold/20 shadow-sm"><CardBody className="p-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center text-gold">
               <span className="material-symbols-outlined">group</span>
@@ -47,8 +45,8 @@ export default function EventsPage() {
               <h3 className="font-serif text-3xl text-espresso">{stats.totalGuests}</h3>
             </div>
           </div>
-        </div>
-        <div className="bg-ivory p-6 border border-gold/20 shadow-sm">
+        </CardBody></Card>
+        <Card className="bg-ivory border border-gold/20 shadow-sm"><CardBody className="p-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center text-gold">
               <span className="material-symbols-outlined">how_to_reg</span>
@@ -58,7 +56,7 @@ export default function EventsPage() {
               <h3 className="font-serif text-3xl text-espresso">{stats.totalRSVPs}</h3>
             </div>
           </div>
-        </div>
+        </CardBody></Card>
       </div>
 
       <div className="mb-8 flex items-center justify-between">
@@ -73,9 +71,7 @@ export default function EventsPage() {
           <span className="material-symbols-outlined text-4xl text-gold mb-4">calendar_month</span>
           <h3 className="font-serif text-xl text-espresso mb-2">No events found</h3>
           <p className="text-clay mb-6">You haven't created any events yet.</p>
-          <Link to="/dashboard/events/new" className="bg-gold text-espresso hover:bg-[#b09358] transition-all px-6 py-2 text-sm font-bold tracking-widest uppercase inline-block">
-            Create Your First Event
-          </Link>
+          <Button as={Link as any} to="/dashboard/events/new" color="primary" className="text-sm font-bold tracking-widest uppercase">Create Your First Event</Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
