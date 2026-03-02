@@ -1,83 +1,93 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LogOut, Calendar, Plus, QrCode } from 'lucide-react';
-import { Button, Card, CardBody } from '@heroui/react';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { LogOut, Calendar, Plus, QrCode, Settings } from 'lucide-react';
+import { Button } from '@heroui/react';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+
+  const user = useQuery((api as any).auth.getUser, userId ? { userId } : "skip");
 
   useEffect(() => {
     const checkUser = () => {
-      const userId = localStorage.getItem('userId');
       if (!userId) {
         navigate('/login');
       }
       setLoading(false);
     };
     checkUser();
-  }, [navigate]);
+  }, [navigate, userId]);
 
   const handleSignOut = () => {
     localStorage.removeItem('userId');
     navigate('/');
   };
 
-  if (loading) return <div className="flex h-screen items-center justify-center bg-ivory">Loading...</div>;
+  if (loading) return <div className="flex h-screen items-center justify-center bg-background"><div className="animate-pulse text-text-muted font-medium">Loading...</div></div>;
+
+  const navItems = [
+    { to: '/dashboard', icon: <Calendar className="h-4 w-4" />, label: 'My Events', exact: true },
+    { to: '/dashboard/events/new', icon: <Plus className="h-4 w-4" />, label: 'Create Event' },
+    { to: '/dashboard/tools/quick-qr', icon: <QrCode className="h-4 w-4" />, label: 'Quick QR' },
+    { to: '/dashboard/settings', icon: <Settings className="h-4 w-4" />, label: 'Settings' },
+  ];
+
+  const isActive = (path: string, exact?: boolean) => {
+    if (exact) return location.pathname === path;
+    return location.pathname.startsWith(path);
+  };
+
+  const displayName = user?.name || user?.email?.split('@')[0] || 'Host';
+  const displayInitial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="flex h-screen bg-soft-surface text-espresso antialiased overflow-hidden">
+    <div className="flex h-screen bg-gray-50 text-black antialiased overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 bg-ivory border-r border-gold/20 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10">
-        <div className="p-8 border-b border-gold/10">
-          <Link to="/" className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-gold text-3xl">diamond</span>
-            <span className="font-serif text-xl tracking-widest uppercase">Gerer</span>
+      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col z-10">
+        <div className="p-6 border-b border-gray-100">
+          <Link to="/" className="flex items-center gap-2 group">
+            <span className="font-display text-2xl font-bold tracking-tight text-black">Gerer Events</span>
           </Link>
         </div>
-        
-        <div className="p-6 flex-1 overflow-y-auto">
-          <p className="text-xs font-bold uppercase tracking-widest text-clay mb-4">Menu</p>
-          <nav className="space-y-2">
-            <Link
-              to="/dashboard"
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${location.pathname === '/dashboard' ? 'bg-espresso text-ivory' : 'text-espresso/70 hover:bg-gold/10 hover:text-espresso'}`}
-            >
-              <Calendar className="h-4 w-4" />
-              My Events
-            </Link>
-            <Link
-              to="/dashboard/events/new"
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${location.pathname === '/dashboard/events/new' ? 'bg-espresso text-ivory' : 'text-espresso/70 hover:bg-gold/10 hover:text-espresso'}`}
-            >
-              <Plus className="h-4 w-4" />
-              Create Event
-            </Link>
-            <Link
-              to="/dashboard/tools/quick-qr"
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${location.pathname === '/dashboard/tools/quick-qr' ? 'bg-espresso text-ivory' : 'text-espresso/70 hover:bg-gold/10 hover:text-espresso'}`}
-            >
-              <QrCode className="h-4 w-4" />
-              Quick QR
-            </Link>
+
+        <div className="p-4 flex-1 overflow-y-auto">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 px-3">Menu</p>
+          <nav className="space-y-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive(item.to, item.exact)
+                  ? 'bg-[#18181B] text-white shadow-sm'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-black'
+                  }`}
+              >
+                {item.icon}
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
 
-        <div className="p-6 border-t border-gold/10">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-espresso text-gold flex items-center justify-center font-serif italic">
-              A
+        <div className="p-4 border-t border-gray-100">
+          <div className="flex items-center gap-3 mb-4 px-2">
+            <div className="w-9 h-9 rounded-full bg-[#18181B] text-white flex items-center justify-center font-display font-bold text-sm shadow-sm">
+              {displayInitial}
             </div>
-            <div>
-              <p className="text-sm font-bold">Host Account</p>
-              <p className="text-xs text-clay">Pro Plan</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-black truncate">{displayName}</p>
+              <p className="text-xs text-gray-500 truncate">{user?.email ?? ''}</p>
             </div>
           </div>
           <Button
             onPress={handleSignOut}
             variant="light"
-            className="w-full justify-start text-espresso/70 hover:text-red-600"
+            className="w-full justify-start text-gray-500 hover:text-red-500 hover:bg-red-50 font-medium text-sm"
             startContent={<LogOut className="h-4 w-4" />}
           >
             Sign Out
@@ -86,7 +96,7 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-soft-surface">
+      <main className="flex-1 overflow-y-auto bg-gray-50">
         <Outlet />
       </main>
     </div>

@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { Button, Input, Card, CardBody, Alert } from '@heroui/react';
+import { Button, Input } from '@heroui/react';
 
 export default function LoginPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,7 @@ export default function LoginPage() {
 
     try {
       if (isSignUp) {
-        const userId = await signUp({ email, password });
+        const userId = await signUp({ name: name || undefined, email, password });
         localStorage.setItem('userId', userId);
         navigate('/dashboard');
       } else {
@@ -39,77 +40,91 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="antialiased overflow-x-hidden bg-ivory text-espresso min-h-screen flex">
+    <div className="antialiased overflow-x-hidden bg-white text-black min-h-screen flex selection:bg-gray-100">
       {/* Left Side - Image & Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden bg-[#F6F5F2]">
         <div className="absolute inset-0 z-0">
-          <img alt="Elegant table setting" className="w-full h-full object-cover opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdBGOj9vyl0NyCrDZwV0UiYjfaUvZqVr2prIGw4SyD3bEfx7FNUnJJ2kaG3We75eO5w5MSQDifgs7hFbAB0MtCNSSzKoBEBNlcs_7o7OismSEGyr_eeSoNdsSFNCp2f5BeBDAtjojqr5gWoRy37vwH528dnBmXBOibNiWOx0-cnUDgV-a5KwymlTfTFUrB6jvQgkqMezRQdt3-hTsiOp5g1PatsUDJZEoi1IHhXnsgajm-vace261JVnTRUnWe1TkVREkjHNeZw7PN"/>
-          <div className="absolute inset-0 bg-gradient-to-t from-espresso via-espresso/40 to-transparent"></div>
+          <img alt="Professional Event" className="w-full h-full object-cover opacity-80" src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&q=80&w=1200" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
         </div>
-        
+
         <div className="relative z-10">
-          <Link to="/" className="flex items-center gap-3 inline-flex">
-            <span className="material-symbols-outlined text-gold text-4xl">diamond</span>
-            <span className="font-serif text-2xl text-ivory tracking-widest uppercase">Gerer</span>
+          <Link to="/" className="flex items-center gap-2 inline-flex group">
+            <span className="font-display text-2xl text-white tracking-tight font-bold">Gerer Events</span>
           </Link>
         </div>
-        
+
         <div className="relative z-10 max-w-md">
-          <p className="text-gold text-sm uppercase tracking-widest mb-4 font-bold">Host Portal</p>
-          <h1 className="font-serif text-4xl md:text-5xl text-ivory mb-6 leading-tight">
+          <p className="text-white/80 text-sm uppercase tracking-widest mb-4 font-bold bg-white/20 inline-block px-3 py-1 rounded-full backdrop-blur-sm">Host Portal</p>
+          <h1 className="font-display text-4xl md:text-5xl text-white mb-6 leading-[1.1] font-medium tracking-tight">
             Command Your Event
           </h1>
-          <p className="text-ivory/80 text-lg font-light leading-relaxed">
-            Access real-time analytics, manage guest lists, and curate memories from your exclusive gatherings.
+          <p className="text-white/90 text-lg font-normal leading-relaxed">
+            Beautiful to share, reliable on event day, insightful after the event ends. Log in to manage your events.
           </p>
         </div>
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24 bg-ivory relative">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24 bg-white relative">
         {/* Mobile Header */}
         <div className="absolute top-8 left-8 lg:hidden">
-          <Link to="/" className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-gold text-3xl">diamond</span>
-            <span className="font-serif text-xl text-espresso tracking-widest uppercase">Gerer</span>
+          <Link to="/" className="flex items-center gap-2">
+            <span className="font-display text-xl text-black tracking-tight font-bold">Gerer Events</span>
           </Link>
         </div>
 
         <div className="w-full max-w-md">
-          <div className="mb-12 text-center lg:text-left">
-            <h2 className="font-serif text-3xl md:text-4xl text-espresso mb-3">
+          <div className="mb-10 text-center lg:text-left">
+            <h2 className="font-display text-3xl md:text-4xl text-black mb-3 font-medium tracking-tight">
               {isSignUp ? 'Create an Account' : 'Welcome Back'}
             </h2>
-            <p className="text-clay text-sm">
+            <p className="text-gray-500 text-[15px]">
               {isSignUp ? 'Enter your details to start planning your event.' : 'Enter your credentials to access your dashboard.'}
             </p>
           </div>
 
-          <form onSubmit={handleAuth} className="space-y-6">
+          <form onSubmit={handleAuth} className="space-y-5">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p className="text-sm text-red-600 font-medium">{error}</p>
               </div>
             )}
-            
+
+            {isSignUp && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-black">Full Name</label>
+                <Input
+                  type="text"
+                  placeholder="John Doe"
+                  value={name}
+                  onValueChange={setName}
+                  variant="bordered"
+                  radius="lg"
+                  classNames={{ inputWrapper: "border-gray-200 hover:border-gray-300 focus-within:!border-black shadow-sm" }}
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-espresso/70">Email Address</label>
+              <label className="text-sm font-semibold text-black">Email Address</label>
               <Input
                 type="email"
                 placeholder="you@example.com"
                 value={email}
                 onValueChange={setEmail}
                 variant="bordered"
-                radius="sm"
+                radius="lg"
                 isRequired
+                classNames={{ inputWrapper: "border-gray-200 hover:border-gray-300 focus-within:!border-black shadow-sm" }}
               />
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold uppercase tracking-widest text-espresso/70">Password</label>
+                <label className="text-sm font-semibold text-black">Password</label>
                 {!isSignUp && (
-                  <a href="#" className="text-xs text-gold hover:text-clay transition-colors">Forgot Password?</a>
+                  <a href="#" className="text-xs text-gray-500 hover:text-black transition-colors font-medium">Forgot Password?</a>
                 )}
               </div>
               <Input
@@ -118,27 +133,28 @@ export default function LoginPage() {
                 value={password}
                 onValueChange={setPassword}
                 variant="bordered"
-                radius="sm"
+                radius="lg"
                 isRequired
+                classNames={{ inputWrapper: "border-gray-200 hover:border-gray-300 focus-within:!border-black shadow-sm" }}
               />
             </div>
-            
+
             <Button
               type="submit"
               isDisabled={loading}
-              color="primary"
-              className="w-full mt-8 font-bold tracking-widest uppercase"
+              className="w-full mt-6 font-medium text-[15px] rounded-full h-12 bg-[#18181B] text-white hover:bg-[#27272A] shadow-md hover:shadow-lg transition-all"
             >
-              {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
+              {loading ? 'Processing...' : isSignUp ? 'Create Account' : 'Sign In'}
             </Button>
           </form>
 
-          <div className="mt-12 text-center">
-            <p className="text-sm text-espresso/60">
+          <div className="mt-8 text-center">
+            <p className="text-[15px] text-gray-500">
               {isSignUp ? 'Already have an account?' : "Don't have an account?"}
               <button
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="ml-2 text-gold hover:text-clay font-bold uppercase tracking-wider text-xs transition-colors"
+                onClick={() => { setIsSignUp(!isSignUp); setError(null); }}
+                className="ml-2 text-black hover:text-gray-600 font-semibold transition-colors"
+                type="button"
               >
                 {isSignUp ? 'Sign In' : 'Create One'}
               </button>

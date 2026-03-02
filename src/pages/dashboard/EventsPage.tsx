@@ -3,6 +3,14 @@ import { Link } from 'react-router-dom';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { format } from 'date-fns';
+
+const safeFormatDate = (dateStr: string, fmt: string, fallback = 'TBD') => {
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return fallback;
+    return format(d, fmt);
+  } catch { return fallback; }
+};
 import { Card, CardBody, Button } from '@heroui/react';
 
 export default function EventsPage() {
@@ -10,99 +18,85 @@ export default function EventsPage() {
   const events = useQuery((api as any).events.getEvents, userId ? { hostId: userId } : "skip");
   const stats = useQuery((api as any).events.getDashboardStats, userId ? { hostId: userId } : "skip");
 
-  if (events === undefined || stats === undefined) return <div className="p-8">Loading events...</div>;
+  if (events === undefined || stats === undefined) return <div className="p-8 text-text-muted font-medium">Loading events...</div>;
+
+  const statCards = [
+    { label: 'Total Events', value: stats.totalEvents, icon: 'event', color: 'bg-primary/10 text-primary' },
+    { label: 'Total Guests', value: stats.totalGuests, icon: 'group', color: 'bg-secondary/10 text-secondary' },
+    { label: 'Total RSVPs', value: stats.totalRSVPs, icon: 'how_to_reg', color: 'bg-accent/10 text-amber-600' },
+  ];
 
   return (
     <div className="p-8 lg:p-12 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
-          <h1 className="font-serif text-3xl md:text-4xl text-espresso mb-2">Dashboard</h1>
-          <p className="text-clay">Welcome back. Here's an overview of your events.</p>
+          <h1 className="font-display text-3xl md:text-4xl text-black mb-2 font-medium tracking-tight">Dashboard</h1>
+          <p className="text-gray-500 text-[15px]">Welcome back. Here's an overview of your events.</p>
         </div>
-        <Button as={Link as any} to="/dashboard/events/new" color="primary" className="text-sm font-bold tracking-widest uppercase" startContent={<span className="material-symbols-outlined text-lg">add</span>}>Create Event</Button>
+        <Button as={Link as any} to="/dashboard/events/new" className="bg-[#18181B] text-white hover:bg-[#27272A] text-[15px] font-medium rounded-full px-6 py-5 shadow-sm transition-all" startContent={<span className="material-symbols-outlined text-lg">add</span>}>Create Event</Button>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <Card className="bg-ivory border border-gold/20 shadow-sm"><CardBody className="p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center text-gold">
-              <span className="material-symbols-outlined">event</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {statCards.map((stat) => (
+          <Card key={stat.label} className="bg-white border border-gray-100 rounded-[24px] shadow-sm hover:shadow-md transition-shadow"><CardBody className="p-6">
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.color}`}>
+                <span className="material-symbols-outlined">{stat.icon}</span>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{stat.label}</p>
+                <h3 className="font-display text-3xl text-black font-semibold mt-1">{stat.value}</h3>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-clay">Total Events</p>
-              <h3 className="font-serif text-3xl text-espresso">{stats.totalEvents}</h3>
-            </div>
-          </div>
-        </CardBody></Card>
-        <Card className="bg-ivory border border-gold/20 shadow-sm"><CardBody className="p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center text-gold">
-              <span className="material-symbols-outlined">group</span>
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-clay">Total Guests</p>
-              <h3 className="font-serif text-3xl text-espresso">{stats.totalGuests}</h3>
-            </div>
-          </div>
-        </CardBody></Card>
-        <Card className="bg-ivory border border-gold/20 shadow-sm"><CardBody className="p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center text-gold">
-              <span className="material-symbols-outlined">how_to_reg</span>
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-clay">Total RSVPs</p>
-              <h3 className="font-serif text-3xl text-espresso">{stats.totalRSVPs}</h3>
-            </div>
-          </div>
-        </CardBody></Card>
+          </CardBody></Card>
+        ))}
       </div>
 
-      <div className="mb-8 flex items-center justify-between">
-        <h2 className="font-serif text-2xl text-espresso">Recent Events</h2>
-        <button className="text-sm font-bold uppercase tracking-widest text-gold hover:text-clay transition-colors flex items-center gap-1">
-          View All <span className="material-symbols-outlined text-sm">arrow_forward</span>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="font-display text-2xl text-black font-medium tracking-tight">Recent Events</h2>
+        <button className="text-[15px] font-medium text-black hover:text-gray-500 transition-colors flex items-center gap-1">
+          View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
 
       {events.length === 0 ? (
-        <div className="bg-ivory border border-dashed border-gold/40 p-12 text-center">
-          <span className="material-symbols-outlined text-4xl text-gold mb-4">calendar_month</span>
-          <h3 className="font-serif text-xl text-espresso mb-2">No events found</h3>
-          <p className="text-clay mb-6">You haven't created any events yet.</p>
-          <Button as={Link as any} to="/dashboard/events/new" color="primary" className="text-sm font-bold tracking-widest uppercase">Create Your First Event</Button>
+        <div className="bg-white border-2 border-dashed border-gray-200 rounded-[32px] p-12 text-center shadow-sm">
+          <span className="material-symbols-outlined text-4xl text-gray-300 mb-4">calendar_month</span>
+          <h3 className="font-display text-xl text-black mb-2 font-medium">No events found</h3>
+          <p className="text-gray-500 mb-6 text-[15px]">You haven't created any events yet.</p>
+          <Button as={Link as any} to="/dashboard/events/new" className="bg-[#18181B] text-white hover:bg-[#27272A] font-medium rounded-full px-6 py-5">Create Your First Event</Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event: any) => (
             <Link key={event._id} to={`/dashboard/events/${event._id}`} className="group block">
-              <div className="bg-ivory border border-gold/20 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <div className="aspect-[4/3] relative overflow-hidden bg-espresso/5">
+              <div className="bg-white border border-gray-100 rounded-[24px] overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="aspect-[4/3] relative overflow-hidden bg-gray-50">
                   {event.coverImageUrl ? (
                     <img src={event.coverImageUrl} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <span className="material-symbols-outlined text-4xl text-gold/30">image</span>
+                      <span className="material-symbols-outlined text-4xl text-gray-300">image</span>
                     </div>
                   )}
-                  <div className="absolute top-4 right-4 bg-ivory/90 backdrop-blur px-3 py-1 text-xs font-bold uppercase tracking-widest text-espresso">
+                  <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-black rounded-full shadow-sm">
                     {event.status}
                   </div>
                 </div>
                 <div className="p-6">
-                  <div className="flex items-center gap-2 text-clay text-sm mb-3">
-                    <span className="material-symbols-outlined text-sm">calendar_today</span>
-                    {format(new Date(event.date), 'MMMM d, yyyy')}
+                  <div className="flex items-center gap-2 text-gray-500 text-[13px] mb-2 font-medium">
+                    <span className="material-symbols-outlined text-[15px]">calendar_today</span>
+                    {safeFormatDate(event.date, 'MMMM d, yyyy')}
                   </div>
-                  <h3 className="font-serif text-2xl text-espresso mb-2 group-hover:text-gold transition-colors">{event.title}</h3>
-                  <p className="text-espresso/60 text-sm line-clamp-2 mb-4">{event.description}</p>
-                  <div className="flex items-center justify-between border-t border-gold/10 pt-4 mt-4">
-                    <div className="flex items-center gap-2 text-sm text-espresso/70">
-                      <span className="material-symbols-outlined text-gold text-sm">location_on</span>
-                      <span className="truncate max-w-[150px]">{event.location}</span>
+                  <h3 className="font-display text-xl text-black mb-2 group-hover:text-gray-600 transition-colors font-semibold tracking-tight leading-tight">{event.title}</h3>
+                  <p className="text-gray-500 text-[15px] line-clamp-2 mb-4 leading-relaxed">{event.description}</p>
+                  <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-2">
+                    <div className="flex items-center gap-2 text-[14px] text-gray-500">
+                      <span className="material-symbols-outlined text-black text-[16px]">location_on</span>
+                      <span className="truncate max-w-[150px] font-medium">{event.location}</span>
                     </div>
-                    <span className="material-symbols-outlined text-gold group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    <span className="material-symbols-outlined text-black group-hover:translate-x-1 transition-transform">arrow_forward</span>
                   </div>
                 </div>
               </div>
@@ -113,5 +107,3 @@ export default function EventsPage() {
     </div>
   );
 }
-
-

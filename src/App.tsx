@@ -16,6 +16,7 @@ import QRPassPage from './pages/public/QRPassPage';
 import UploadPage from './pages/public/UploadPage';
 import CheckInPage from './pages/dashboard/CheckInPage';
 import QuickQRPage from './pages/dashboard/QuickQRPage';
+import SettingsPage from './pages/dashboard/SettingsPage';
 
 export default function App() {
   return (
@@ -23,7 +24,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
-        
+
         {/* Host Dashboard */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<EventsPage />} />
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="events/:id" element={<EventDetailsPage />} />
           <Route path="events/:id/checkin" element={<CheckInPage />} />
           <Route path="tools/quick-qr" element={<QuickQRPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
 
         {/* Public Event Pages */}

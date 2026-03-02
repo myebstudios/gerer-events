@@ -9,7 +9,7 @@ import { resolveTemplateTone } from '../../lib/catalog';
 export default function UploadPage() {
   const { id } = useParams();
   const event = useQuery((api as any).events.getEvent, id ? { eventId: id } : "skip");
-  
+
   const [qrToken, setQrToken] = useState('');
   const [guest, setGuest] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -52,10 +52,10 @@ export default function UploadPage() {
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        
+
         // 1. Get upload URL
         const postUrl = await generateUploadUrl();
-        
+
         // 2. Upload file
         const result = await fetch(postUrl, {
           method: "POST",
@@ -106,45 +106,45 @@ export default function UploadPage() {
     }
   };
 
-  if (event === undefined) return <div className="flex h-screen items-center justify-center bg-background">Loading...</div>;
-  if (!event) return <div className="flex h-screen items-center justify-center bg-background">Event not found</div>;
+  if (event === undefined) return <div className="flex h-screen items-center justify-center bg-background"><div className="animate-pulse text-text-muted font-medium">Loading...</div></div>;
+  if (!event) return <div className="flex h-screen items-center justify-center bg-background text-text-muted font-medium">Event not found</div>;
 
   const template = resolveTemplateTone(event.templateId);
 
-  // Template Styles
+  // Template Styles – modernized
   const templateStyles = {
     minimal: {
-      bg: 'bg-white',
-      text: 'text-gray-900',
-      accent: 'bg-blue-600 text-white hover:bg-blue-700',
+      bg: 'bg-surface',
+      text: 'text-text-main',
+      accent: 'bg-primary text-white hover:bg-primary-hover rounded-full shadow-sm',
       font: 'font-sans',
-      hero: 'bg-gray-50',
-      heroText: 'text-gray-900',
-      input: 'bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600',
-      dropzone: 'border-2 border-dashed border-gray-300 hover:border-blue-500 bg-gray-50 hover:bg-blue-50 rounded-2xl',
-      dropzoneActive: 'border-blue-500 bg-blue-50',
+      hero: 'bg-background',
+      heroText: 'text-text-main',
+      input: 'bg-surface border border-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary',
+      dropzone: 'border-2 border-dashed border-border hover:border-primary bg-background hover:bg-primary/5 rounded-2xl',
+      dropzoneActive: 'border-primary bg-primary/5',
     },
     playful: {
-      bg: 'bg-[#FFF9E6]',
-      text: 'text-[#2D3748]',
-      accent: 'bg-[#FF4F5A] text-white hover:bg-[#E03E48] rounded-full shadow-lg',
+      bg: 'bg-accent-light',
+      text: 'text-text-main',
+      accent: 'bg-orange text-white hover:bg-orange/90 rounded-full shadow-lg',
       font: 'font-display',
-      hero: 'bg-[#FFC107]',
-      heroText: 'text-[#2D3748]',
-      input: 'bg-white border-2 border-[#2D3748] rounded-2xl focus:ring-4 focus:ring-[#FF4F5A]/20 focus:border-[#FF4F5A]',
-      dropzone: 'border-4 border-dashed border-[#2D3748] hover:border-[#FF4F5A] bg-white hover:bg-[#FF4F5A]/5 rounded-[2rem]',
-      dropzoneActive: 'border-[#FF4F5A] bg-[#FF4F5A]/10',
+      hero: 'bg-accent',
+      heroText: 'text-text-main',
+      input: 'bg-white border-2 border-text-main/20 rounded-2xl focus:ring-4 focus:ring-orange/20 focus:border-orange',
+      dropzone: 'border-4 border-dashed border-text-main/30 hover:border-orange bg-white hover:bg-orange/5 rounded-[2rem]',
+      dropzoneActive: 'border-orange bg-orange/10',
     },
     elegant: {
-      bg: 'bg-[#111827]',
-      text: 'text-[#F3F4F6]',
-      accent: 'bg-[#D4AF37] text-[#111827] hover:bg-[#B5952F] rounded-none tracking-widest uppercase',
-      font: 'font-serif',
-      hero: 'bg-[#000000]',
-      heroText: 'text-[#D4AF37]',
-      input: 'bg-[#1F2937] border border-[#D4AF37]/30 rounded-none focus:border-[#D4AF37] text-white',
-      dropzone: 'border border-dashed border-[#D4AF37]/50 hover:border-[#D4AF37] bg-[#1F2937] hover:bg-[#1F2937]/80 rounded-none',
-      dropzoneActive: 'border-[#D4AF37] bg-[#D4AF37]/10',
+      bg: 'bg-text-main',
+      text: 'text-white',
+      accent: 'bg-accent text-text-main hover:bg-accent-hover rounded-full tracking-widest uppercase shadow-md',
+      font: 'font-display',
+      hero: 'bg-black',
+      heroText: 'text-accent',
+      input: 'bg-white/10 border border-accent/30 rounded-xl focus:border-accent text-white',
+      dropzone: 'border border-dashed border-accent/40 hover:border-accent bg-white/5 hover:bg-accent/5 rounded-2xl',
+      dropzoneActive: 'border-accent bg-accent/10',
     }
   };
 
@@ -161,9 +161,9 @@ export default function UploadPage() {
           />
         )}
         <div className={`absolute inset-0 bg-gradient-to-b from-transparent to-${styles.bg.replace('bg-', '')}`} />
-        
+
         <div className="relative z-10">
-          <Link to={`/e/${id}`} className={`hover:opacity-70 text-sm font-bold uppercase tracking-widest flex items-center gap-2 mb-12 transition-colors w-fit ${styles.heroText}`}>
+          <Link to={`/e/${id}`} className={`hover:opacity-70 text-sm font-semibold flex items-center gap-2 mb-12 transition-colors w-fit ${styles.heroText}`}>
             <span className="material-symbols-outlined text-sm">arrow_back</span> Back to Event
           </Link>
         </div>
@@ -190,14 +190,14 @@ export default function UploadPage() {
           {!guest ? (
             <div>
               <div className="mb-10 text-center md:text-left">
-                <h2 className="text-3xl md:text-4xl mb-2 font-bold">Verify Access</h2>
-                <div className="h-1 w-12 bg-current opacity-20 mx-auto md:mx-0 mb-6 rounded-full"></div>
+                <h2 className="text-3xl md:text-4xl mb-3 font-bold">Verify Access</h2>
+                <div className="h-1 w-12 bg-primary rounded-full mx-auto md:mx-0 mb-6"></div>
                 <p className="opacity-70">Please enter your QR token to access the upload gallery.</p>
               </div>
 
-              <form onSubmit={verifyGuest} className="space-y-6">
+              <form onSubmit={verifyGuest} className="space-y-5">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold opacity-70">QR Token *</label>
+                  <label className="text-sm font-semibold opacity-70">QR Token *</label>
                   <input
                     required
                     value={qrToken}
@@ -209,17 +209,17 @@ export default function UploadPage() {
                 </div>
 
                 {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 text-red-800 text-sm flex items-center gap-2 rounded-lg">
-                    <span className="material-symbols-outlined text-red-500">error</span>
+                  <div className="p-4 bg-red-light border border-red/20 text-red text-sm flex items-center gap-2 rounded-xl">
+                    <span className="material-symbols-outlined text-red">error</span>
                     {error}
                   </div>
                 )}
 
-                <div className="pt-6">
-                  <button 
-                    type="submit" 
+                <div className="pt-4">
+                  <button
+                    type="submit"
                     disabled={loading}
-                    className={`w-full transition-all px-8 py-4 font-bold disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${styles.accent}`}
+                    className={`w-full transition-all px-8 py-4 font-semibold disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${styles.accent}`}
                   >
                     {loading ? (
                       <>
@@ -236,15 +236,14 @@ export default function UploadPage() {
           ) : (
             <div>
               <div className="mb-10 text-center md:text-left">
-                <h2 className="text-3xl md:text-4xl mb-2 font-bold">Welcome, {guest.fullName.split(' ')[0]}</h2>
-                <div className="h-1 w-12 bg-current opacity-20 mx-auto md:mx-0 mb-6 rounded-full"></div>
+                <h2 className="text-3xl md:text-4xl mb-3 font-bold">Welcome, {guest.fullName.split(' ')[0]}</h2>
+                <div className="h-1 w-12 bg-primary rounded-full mx-auto md:mx-0 mb-6"></div>
                 <p className="opacity-70">Select or drag & drop your photos and videos below.</p>
               </div>
 
-              <div 
-                className={`transition-all duration-300 flex flex-col items-center justify-center p-12 text-center cursor-pointer relative overflow-hidden ${
-                  dragActive ? styles.dropzoneActive : styles.dropzone
-                }`}
+              <div
+                className={`transition-all duration-300 flex flex-col items-center justify-center p-12 text-center cursor-pointer relative overflow-hidden ${dragActive ? styles.dropzoneActive : styles.dropzone
+                  }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
@@ -260,7 +259,7 @@ export default function UploadPage() {
                   onChange={handleFileUpload}
                   disabled={loading}
                 />
-                
+
                 {loading ? (
                   <div className="flex flex-col items-center">
                     <span className="material-symbols-outlined text-6xl animate-spin mb-4 opacity-70">sync</span>
@@ -277,23 +276,23 @@ export default function UploadPage() {
               </div>
 
               {error && (
-                <div className="mt-6 p-4 bg-red-50 border border-red-200 text-red-800 text-sm flex items-center gap-2 rounded-lg">
-                  <span className="material-symbols-outlined text-red-500">error</span>
+                <div className="mt-6 p-4 bg-red-light border border-red/20 text-red text-sm flex items-center gap-2 rounded-xl">
+                  <span className="material-symbols-outlined text-red">error</span>
                   {error}
                 </div>
               )}
 
               {success && (
-                <div className="mt-6 p-4 bg-green-50 border border-green-200 text-green-800 text-sm flex items-center gap-2 rounded-lg">
-                  <span className="material-symbols-outlined text-green-500">check_circle</span>
+                <div className="mt-6 p-4 bg-primary-light border border-primary/20 text-primary text-sm flex items-center gap-2 rounded-xl">
+                  <span className="material-symbols-outlined text-primary">check_circle</span>
                   Upload successful! Thank you for sharing.
                 </div>
               )}
 
               <div className="mt-8 text-center">
-                <button 
+                <button
                   onClick={() => setGuest(null)}
-                  className="text-sm font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity"
+                  className="text-sm font-semibold opacity-60 hover:opacity-100 transition-opacity"
                 >
                   Not {guest.fullName.split(' ')[0]}? Sign out
                 </button>

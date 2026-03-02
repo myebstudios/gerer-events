@@ -1,31 +1,85 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
 
-  --color-primary: #FF4F5A;
-  --color-primary-hover: #E03E48;
-  --color-secondary: #007BFF;
+  /* Primary palette – vibrant green from reference */
+  --color-primary: #4CAF50;
+  --color-primary-hover: #43A047;
+  --color-primary-light: #E8F5E9;
+
+  /* Secondary – indigo/blue-purple */
+  --color-secondary: #5B6ABF;
+  --color-secondary-hover: #4F5CA8;
+  --color-secondary-light: #E8EAF6;
+
+  /* Accent – warm yellow-amber */
   --color-accent: #FFC107;
-  
+  --color-accent-hover: #FFB300;
+  --color-accent-light: #FFF8E1;
+
+  /* Extended palette matching reference swatches */
+  --color-orange: #FF7043;
+  --color-orange-light: #FBE9E7;
+  --color-red: #EF5350;
+  --color-red-light: #FFEBEE;
+  --color-emerald: #26A69A;
+  --color-emerald-light: #E0F2F1;
+  --color-pink: #EC407A;
+  --color-pink-light: #FCE4EC;
+  --color-purple: #AB47BC;
+  --color-purple-light: #F3E5F5;
+
+  /* Surfaces */
   --color-surface: #FFFFFF;
-  --color-background: #F8F9FA;
-  
-  --color-text-main: #111827;
+  --color-background: #F5F5F7;
+  --color-surface-elevated: #FFFFFF;
+
+  /* Text */
+  --color-text-main: #1A1A2E;
   --color-text-muted: #6B7280;
-  
-  --color-border: #E5E7EB;
+  --color-text-subtle: #9CA3AF;
+
+  /* Borders */
+  --color-border: #E8E8ED;
+  --color-border-strong: #D1D5DB;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-elevated: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-float: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
 }
 
 @layer base {
   body {
     @apply bg-background text-text-main font-sans antialiased;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-display font-bold tracking-tight;
   }
+
+  * {
+    @apply border-border;
+  }
 }
 
+/* Scrollbar styling */
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
