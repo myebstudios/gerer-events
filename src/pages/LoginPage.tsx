@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Button, Input } from '@heroui/react';
+import { sanitizeId } from '../lib/id';
 
 export default function LoginPage() {
   const [name, setName] = useState('');
@@ -25,11 +26,15 @@ export default function LoginPage() {
     try {
       if (isSignUp) {
         const userId = await signUp({ name: name || undefined, email, password });
-        localStorage.setItem('userId', userId);
+        const safeUserId = sanitizeId(String(userId));
+        if (!safeUserId) throw new Error('Invalid account session. Please sign in again.');
+        localStorage.setItem('userId', safeUserId);
         navigate('/dashboard');
       } else {
         const userId = await signIn({ email, password });
-        localStorage.setItem('userId', userId);
+        const safeUserId = sanitizeId(String(userId));
+        if (!safeUserId) throw new Error('Invalid account session. Please sign in again.');
+        localStorage.setItem('userId', safeUserId);
         navigate('/dashboard');
       }
     } catch (err: any) {
