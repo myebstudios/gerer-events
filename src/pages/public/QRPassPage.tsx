@@ -5,15 +5,19 @@ import { api } from '../../../convex/_generated/api';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion } from 'framer-motion';
 import { resolveTemplateTone } from '../../lib/catalog';
+import { sanitizeId, getStoredUserId } from '../../lib/id';
 import { format } from 'date-fns';
 import { toPng } from 'html-to-image';
 
 export default function QRPassPage() {
   const { id, guestId } = useParams();
+  const safeEventId = sanitizeId(id);
+
+  if (!safeEventId) return <div className="p-8 text-text-muted font-medium">Invalid event link.</div>;
   const ticketRef = React.useRef<HTMLDivElement>(null);
 
   const guest = useQuery((api as any).guests.getGuest, guestId ? { guestId } : "skip");
-  const event = useQuery((api as any).events.getEvent, id ? { eventId: id } : "skip");
+  const event = useQuery((api as any).events.getEvent, safeEventId ? { eventId: safeEventId } : "skip");
 
   if (guest === undefined || event === undefined) return <div className="flex h-screen items-center justify-center bg-background"><div className="animate-pulse text-text-muted font-medium">Loading...</div></div>;
   if (!guest || !event) return <div className="flex h-screen items-center justify-center bg-background text-text-muted font-medium">Pass not found</div>;

@@ -2,10 +2,11 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { sanitizeId, getStoredUserId } from '../../lib/id';
 import { Button, Input, Card, CardBody } from '@heroui/react';
 
 export default function SettingsPage() {
-    const userId = localStorage.getItem('userId');
+    const userId = getStoredUserId();
     const user = useQuery((api as any).auth.getUser, userId ? { userId } : "skip");
     const updateUser = useMutation((api as any).auth.updateUser);
 

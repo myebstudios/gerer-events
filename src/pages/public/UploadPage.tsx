@@ -5,10 +5,14 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { motion } from 'framer-motion';
 import { resolveTemplateTone } from '../../lib/catalog';
+import { sanitizeId, getStoredUserId } from '../../lib/id';
 
 export default function UploadPage() {
   const { id } = useParams();
-  const event = useQuery((api as any).events.getEvent, id ? { eventId: id } : "skip");
+  const safeEventId = sanitizeId(id);
+
+  if (!safeEventId) return <div className="p-8 text-text-muted font-medium">Invalid event link.</div>;
+  const event = useQuery((api as any).events.getEvent, safeEventId ? { eventId: safeEventId } : "skip");
 
   const [qrToken, setQrToken] = useState('');
   const [guest, setGuest] = useState<any>(null);
@@ -18,7 +22,7 @@ export default function UploadPage() {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const verifyGuestQuery = useQuery((api as any).guests.verifyGuest, qrToken ? { eventId: id, qrToken } : "skip");
+  const verifyGuestQuery = useQuery((api as any).guests.verifyGuest, qrToken ? { eventId: safeEventId, qrToken } : "skip");
   const generateUploadUrl = useMutation((api as any).media.generateUploadUrl);
   const saveMedia = useMutation((api as any).media.saveMedia);
 
@@ -66,7 +70,7 @@ export default function UploadPage() {
 
         // 3. Save media
         await saveMedia({
-          eventId: id,
+          eventId: safeEventId,
           guestId: guest._id,
           storageId,
           fileType: file.type,

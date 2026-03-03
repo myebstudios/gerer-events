@@ -3,12 +3,16 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { sanitizeId, getStoredUserId } from '../../lib/id';
 
 export default function CheckInPage() {
   const { id } = useParams();
-  const userId = localStorage.getItem('userId');
-  const event = useQuery((api as any).events.getEvent, id && userId ? { eventId: id } : "skip");
-  const guests = useQuery((api as any).guests.getGuests, id && userId ? { eventId: id, hostId: userId } : "skip");
+  const safeEventId = sanitizeId(id);
+
+  if (!safeEventId) return <div className="p-8 text-text-muted font-medium">Invalid event link.</div>;
+  const userId = getStoredUserId();
+  const event = useQuery((api as any).events.getEvent, safeEventId && userId ? { eventId: safeEventId } : "skip");
+  const guests = useQuery((api as any).guests.getGuests, safeEventId && userId ? { eventId: safeEventId, hostId: userId } : "skip");
   const checkIn = useMutation((api as any).guests.checkIn);
 
   const [searchQuery, setSearchQuery] = useState('');

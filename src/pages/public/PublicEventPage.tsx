@@ -4,6 +4,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { motion } from 'framer-motion';
 import { TEMPLATE_CATALOG } from '../../lib/catalog';
+import { sanitizeId, getStoredUserId } from '../../lib/id';
 
 const safeFormat = (dateStr: string, endDateStr?: string, fallback = 'TBD') => {
   try {
@@ -64,7 +65,10 @@ const FONT_FAMILIES: Record<string, string> = {
 
 export default function PublicEventPage() {
   const { id } = useParams();
-  const event = useQuery((api as any).events.getEvent, id ? { eventId: id } : 'skip');
+  const safeEventId = sanitizeId(id);
+
+  if (!safeEventId) return <div className="p-8 text-text-muted font-medium">Invalid event link.</div>;
+  const event = useQuery((api as any).events.getEvent, safeEventId ? { eventId: safeEventId } : 'skip');
 
   if (event === undefined) return (
     <div className="flex h-screen items-center justify-center bg-background">

@@ -5,11 +5,15 @@ import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { motion } from 'framer-motion';
 import { resolveTemplateTone } from '../../lib/catalog';
+import { sanitizeId, getStoredUserId } from '../../lib/id';
 
 export default function RSVPPage() {
   const { id } = useParams();
+  const safeEventId = sanitizeId(id);
+
+  if (!safeEventId) return <div className="p-8 text-text-muted font-medium">Invalid event link.</div>;
   const navigate = useNavigate();
-  const event = useQuery((api as any).events.getEvent, id ? { eventId: id } : "skip");
+  const event = useQuery((api as any).events.getEvent, safeEventId ? { eventId: safeEventId } : "skip");
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,7 +36,7 @@ export default function RSVPPage() {
       const qrToken = `evt_${id}_gst_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       const guestId = await rsvp({
-        eventId: id,
+        eventId: safeEventId,
         fullName: formData.full_name,
         email: formData.email,
         phone: formData.phone,

@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button, Input, Textarea, Select, SelectItem } from '@heroui/react';
 import { TEMPLATE_CATALOG, type EventType } from '../../lib/catalog';
+import { sanitizeId, getStoredUserId } from '../../lib/id';
 
 const safeFormatDate = (dateStr: string, endDateStr?: string, fmt = 'MMMM d, yyyy', fallback = 'TBD') => {
   try {
@@ -26,14 +27,17 @@ const safeFormatDate = (dateStr: string, endDateStr?: string, fmt = 'MMMM d, yyy
 
 export default function EventDetailsPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const userId = localStorage.getItem('userId');
+  const safeEventId = sanitizeId(id);
 
-  const event = useQuery((api as any).events.getEvent, id ? { eventId: id } : "skip");
-  const stats = useQuery((api as any).events.getEventStats, id && userId ? { eventId: id, hostId: userId } : "skip");
-  const guests = useQuery((api as any).guests.getGuests, id && userId ? { eventId: id, hostId: userId } : "skip");
-  const media = useQuery((api as any).media.getMedia, id && userId ? { eventId: id, hostId: userId } : "skip");
-  const guestsExport = useQuery((api as any).guests.getGuestsForExport, id && userId ? { eventId: id, hostId: userId } : "skip");
+  if (!safeEventId) return <div className="p-8 text-text-muted font-medium">Invalid event link.</div>;
+  const navigate = useNavigate();
+  const userId = getStoredUserId();
+
+  const event = useQuery((api as any).events.getEvent, safeEventId ? { eventId: safeEventId } : "skip");
+  const stats = useQuery((api as any).events.getEventStats, safeEventId && userId ? { eventId: safeEventId, hostId: userId } : "skip");
+  const guests = useQuery((api as any).guests.getGuests, safeEventId && userId ? { eventId: safeEventId, hostId: userId } : "skip");
+  const media = useQuery((api as any).media.getMedia, safeEventId && userId ? { eventId: safeEventId, hostId: userId } : "skip");
+  const guestsExport = useQuery((api as any).guests.getGuestsForExport, safeEventId && userId ? { eventId: safeEventId, hostId: userId } : "skip");
 
   const updateEventStatus = useMutation((api as any).events.updateEventStatus);
   const updateEvent = useMutation((api as any).events.updateEvent);

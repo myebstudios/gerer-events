@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { sanitizeId, getStoredUserId } from '../../lib/id';
 import { format } from 'date-fns';
 
 const safeFormatDate = (dateStr: string, fmt: string, fallback = 'TBD') => {
@@ -14,7 +15,7 @@ const safeFormatDate = (dateStr: string, fmt: string, fallback = 'TBD') => {
 import { Card, CardBody, Button } from '@heroui/react';
 
 export default function EventsPage() {
-  const userId = localStorage.getItem('userId');
+  const userId = getStoredUserId();
   const events = useQuery((api as any).events.getEvents, userId ? { hostId: userId } : "skip");
   const stats = useQuery((api as any).events.getDashboardStats, userId ? { hostId: userId } : "skip");
 

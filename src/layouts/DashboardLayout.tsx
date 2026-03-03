@@ -4,12 +4,13 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { LogOut, Calendar, Plus, QrCode, Settings } from 'lucide-react';
 import { Button } from '@heroui/react';
+import { getStoredUserId } from '../lib/id';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
-  const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+  const userId = getStoredUserId();
 
   const user = useQuery((api as any).auth.getUser, userId ? { userId } : "skip");
 

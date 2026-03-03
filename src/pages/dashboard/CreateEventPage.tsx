@@ -5,6 +5,7 @@ import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EVENT_TYPES, TEMPLATE_CATALOG, type EventType } from '../../lib/catalog';
+import { sanitizeId, getStoredUserId } from '../../lib/id';
 import { Button, Input, Select, SelectItem, Textarea } from '@heroui/react';
 
 const safeFormatDate = (dateStr: string, fmt: 'short' | 'long' = 'long', fallback = 'Your Event Date') => {
@@ -66,7 +67,7 @@ export default function CreateEventPage() {
     setLoading(true);
 
     try {
-      const userId = localStorage.getItem('userId');
+      const userId = getStoredUserId();
       if (!userId) throw new Error('Not authenticated');
 
       let coverImageStorageId: string | undefined;
