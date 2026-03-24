@@ -8,6 +8,18 @@ import { BrowserMultiFormatReader } from '@zxing/browser';
 import { NotFoundException } from '@zxing/library';
 import { Button, Input, Card, CardBody } from '@heroui/react';
 
+function extractToken(raw: string) {
+  const value = raw.trim();
+  if (!value) return '';
+
+  try {
+    const url = new URL(value);
+    return url.searchParams.get('token') || url.searchParams.get('qr') || url.pathname.split('/').filter(Boolean).pop() || value;
+  } catch {
+    return value;
+  }
+}
+
 export default function CheckInPage() {
   const { id } = useParams();
   const safeEventId = sanitizeId(id);
@@ -24,8 +36,10 @@ export default function CheckInPage() {
   const [isScannerSupported, setIsScannerSupported] = useState(true);
   const [isScanning, setIsScanning] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraPermission, setCameraPermission] = useState<'unknown' | 'granted' | 'denied' | 'prompt'>('unknown');
 
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const streamRef = React.useRef<MediaStream | null>(null);
   const controlsRef = React.useRef<{ stop: () => void } | null>(null);
   const codeReaderRef = React.useRef<BrowserMultiFormatReader | null>(null);
 
@@ -46,7 +60,7 @@ export default function CheckInPage() {
 
   const resolveTokenCheckIn = async (token: string) => {
     if (!guests) return;
-    const normalized = token.trim();
+    const normalized = extractToken(token);
     if (!normalized) {
       showTemporaryMessage({ type: 'error', text: 'Please enter a token.' });
       return;
@@ -79,12 +93,36 @@ export default function CheckInPage() {
     controlsRef.current?.stop();
     controlsRef.current = null;
     codeReaderRef.current = null;
+
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
     setIsScanning(false);
   }, []);
 
   React.useEffect(() => {
     return () => stopScanner();
   }, [stopScanner]);
+
+  React.useEffect(() => {
+    const checkPermission = async () => {
+      try {
+        if (!navigator.permissions || !('query' in navigator.permissions)) return;
+        const result = await navigator.permissions.query({ name: 'camera' as PermissionName });
+        setCameraPermission(result.state as any);
+        result.onchange = () => setCameraPermission(result.state as any);
+      } catch {
+        // ignore unsupported permissions API
+      }
+    };
+    checkPermission();
+  }, []);
 
   const startScanner = async () => {
     setCameraError(null);
@@ -96,17 +134,24 @@ export default function CheckInPage() {
     }
 
     try {
+      // Force the browser to ask for permission first.
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: 'environment' },
+        },
+        audio: false,
+      });
+
+      streamRef.current = stream;
+      setCameraPermission('granted');
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play().catch(() => {});
+
       const codeReader = new BrowserMultiFormatReader();
       codeReaderRef.current = codeReader;
-      const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-      const preferredDeviceId = devices.find((d) => /back|rear|environment/i.test(d.label))?.deviceId ?? devices[0]?.deviceId;
-
-      if (!preferredDeviceId) {
-        throw new Error('No camera found on this device.');
-      }
-
       setIsScanning(true);
-      controlsRef.current = await codeReader.decodeFromVideoDevice(preferredDeviceId, videoRef.current, async (result, error) => {
+
+      controlsRef.current = await codeReader.decodeFromVideoElement(videoRef.current, async (result, error) => {
         if (result) {
           const text = result.getText();
           stopScanner();
@@ -121,6 +166,23 @@ export default function CheckInPage() {
     } catch (error: any) {
       console.error(error);
       stopScanner();
+
+      if (error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') {
+        setCameraPermission('denied');
+        setCameraError('Camera permission was denied. Enable camera access for Chrome and reload this page.');
+        return;
+      }
+
+      if (error?.name === 'NotFoundError' || error?.name === 'DevicesNotFoundError') {
+        setCameraError('No camera was found on this device.');
+        return;
+      }
+
+      if (error?.name === 'NotReadableError' || error?.name === 'TrackStartError') {
+        setCameraError('Camera is busy or unavailable. Close other apps using the camera and try again.');
+        return;
+      }
+
       setCameraError(error?.message || 'Unable to access camera scanner.');
     }
   };
@@ -133,7 +195,7 @@ export default function CheckInPage() {
   );
 
   return (
-    <div className="p-8 lg:p-12 max-w-7xl mx-auto h-full flex flex-col">
+    <div className="p-4 sm:p-6 lg:p-12 max-w-7xl mx-auto h-full flex flex-col">
       <div className="mb-8">
         <Link to={`/dashboard/events/${safeEventId}`} className="text-text-muted hover:text-primary text-sm font-semibold flex items-center gap-2 mb-6 transition-colors w-fit">
           <span className="material-symbols-outlined text-sm">arrow_back</span> Back to Event
@@ -144,7 +206,7 @@ export default function CheckInPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
         <Card className="bg-surface border border-border rounded-2xl shadow-[var(--shadow-card)]">
-          <CardBody className="p-8 flex flex-col items-center justify-center relative overflow-hidden">
+          <CardBody className="p-6 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary opacity-5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
 
             <div className="w-full max-w-md relative z-10 flex flex-col items-center">
@@ -153,7 +215,7 @@ export default function CheckInPage() {
                   <>
                     <video ref={videoRef} className="absolute inset-0 h-full w-full object-cover" muted playsInline autoPlay />
                     <div className="absolute inset-0 border-[3px] border-white/70 rounded-2xl pointer-events-none m-6"></div>
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full whitespace-nowrap">
                       Point camera at guest QR
                     </div>
                   </>
@@ -162,11 +224,14 @@ export default function CheckInPage() {
                     <span className="material-symbols-outlined text-6xl text-primary/40 mb-4">qr_code_scanner</span>
                     <p className="text-sm font-semibold text-text-muted">{isScannerSupported ? 'Ready to scan with camera' : 'Camera scanner unavailable'}</p>
                     <p className="text-xs text-text-subtle mt-2">Use the camera for instant QR check-in, or verify a token manually below.</p>
+                    <p className="text-[11px] text-text-subtle mt-3">
+                      Permission status: <span className="font-semibold capitalize">{cameraPermission}</span>
+                    </p>
                   </div>
                 )}
               </div>
 
-              <div className="flex gap-3 mb-6 w-full max-w-[320px]">
+              <div className="flex flex-col sm:flex-row gap-3 mb-6 w-full max-w-[360px]">
                 {!isScanning ? (
                   <Button color="primary" onPress={startScanner} className="flex-1 font-semibold rounded-full">
                     Start Camera Scanner
@@ -185,12 +250,12 @@ export default function CheckInPage() {
               )}
 
               <div className="w-full max-w-sm relative z-10">
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4 text-center">Or enter token manually</p>
-                <form onSubmit={handleQRSubmit} className="flex gap-2 items-center">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4 text-center">Or enter token / QR link manually</p>
+                <form onSubmit={handleQRSubmit} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                   <Input
                     value={qrToken}
                     onValueChange={setQrToken}
-                    placeholder="Token (e.g., evt_...)"
+                    placeholder="Paste token or scanned QR link"
                     variant="bordered"
                     className="flex-1"
                   />
@@ -225,10 +290,10 @@ export default function CheckInPage() {
 
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {filteredGuests.map((guest: any) => (
-                <div key={guest._id} className="flex items-center justify-between p-4 border border-border rounded-xl hover:border-primary/30 transition-all bg-background/50">
-                  <div>
-                    <p className="font-semibold text-text-main">{guest.fullName}</p>
-                    <p className="text-xs text-text-muted mt-1">
+                <div key={guest._id} className="flex items-center justify-between gap-3 p-4 border border-border rounded-xl hover:border-primary/30 transition-all bg-background/50">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-text-main truncate">{guest.fullName}</p>
+                    <p className="text-xs text-text-muted mt-1 truncate">
                       {guest.attendanceStatus} {guest.plusOnes > 0 && `• +${guest.plusOnes} Guests`}
                     </p>
                   </div>
@@ -236,7 +301,7 @@ export default function CheckInPage() {
                     onPress={() => handleManualCheckIn(guest._id, guest.checkedIn)}
                     color={guest.checkedIn ? 'success' : 'primary'}
                     variant={guest.checkedIn ? 'flat' : 'solid'}
-                    className="text-xs font-semibold rounded-full"
+                    className="text-xs font-semibold rounded-full shrink-0"
                     startContent={guest.checkedIn ? <span className="material-symbols-outlined text-sm">check_circle</span> : undefined}
                   >
                     {guest.checkedIn ? 'Checked In' : 'Check In'}
