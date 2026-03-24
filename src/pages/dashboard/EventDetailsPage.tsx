@@ -175,7 +175,7 @@ export default function EventDetailsPage() {
   ];
 
   return (
-    <div className="p-8 lg:p-12 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-12 max-w-7xl mx-auto overflow-x-hidden">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div>
@@ -183,7 +183,7 @@ export default function EventDetailsPage() {
             <span className="material-symbols-outlined text-sm">arrow_back</span> All Events
           </Link>
           <div className="flex items-center gap-4 mb-3 flex-wrap">
-            <h1 className="font-display text-4xl md:text-5xl text-text-main">{event.title}</h1>
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-text-main break-words">{event.title}</h1>
             <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full ${statusColors[event.status] ?? statusColors.draft}`}>
               {event.status}
             </span>
@@ -193,7 +193,7 @@ export default function EventDetailsPage() {
             <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">location_on</span> {event.location}</span>
           </div>
         </div>
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           {/* Status Controls */}
           {event.status === 'draft' && (
             <Button onPress={() => handleStatusChange('published')} color="primary" variant="bordered" className="text-sm font-semibold rounded-full" startContent={<span className="material-symbols-outlined text-sm">publish</span>}>Publish</Button>
@@ -204,13 +204,13 @@ export default function EventDetailsPage() {
           {event.status === 'live' && (
             <Button onPress={() => handleStatusChange('ended')} color="danger" variant="bordered" className="text-sm font-semibold rounded-full" startContent={<span className="material-symbols-outlined text-sm">stop</span>}>End Event</Button>
           )}
-          <Button as="a" href={publicUrl} target="_blank" rel="noopener noreferrer" variant="bordered" className="text-sm font-semibold rounded-full" startContent={<span className="material-symbols-outlined text-sm">open_in_new</span>}>View Public Page</Button>
-          <Button as={Link as any} to={`/dashboard/events/${event._id}/checkin`} color="primary" className="text-sm font-semibold rounded-full" startContent={<span className="material-symbols-outlined text-sm">qr_code_scanner</span>}>Check-in Scanner</Button>
+          <Button as="a" href={publicUrl} target="_blank" rel="noopener noreferrer" variant="bordered" className="text-sm font-semibold rounded-full w-full sm:w-auto" startContent={<span className="material-symbols-outlined text-sm">open_in_new</span>}>View Public Page</Button>
+          <Button as={Link as any} to={`/dashboard/events/${event._id}/checkin`} color="primary" className="text-sm font-semibold rounded-full w-full sm:w-auto" startContent={<span className="material-symbols-outlined text-sm">qr_code_scanner</span>}>Check-in Scanner</Button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-8 overflow-x-auto hide-scrollbar border-b border-border pb-3">
+      <div className="flex gap-2 mb-8 overflow-x-auto hide-scrollbar border-b border-border pb-3 -mx-1 px-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -228,7 +228,7 @@ export default function EventDetailsPage() {
       {/* OVERVIEW TAB */}
       {activeTab === 'overview' && (
         <div className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
             {statItems.map((stat) => (
               <div key={stat.label} className="bg-surface p-5 rounded-2xl border border-border shadow-[var(--shadow-card)] flex items-center gap-4">
                 <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${stat.color}`}>
@@ -243,13 +243,13 @@ export default function EventDetailsPage() {
           </div>
 
           {/* Edit Event Section */}
-          <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
-            <div className="flex justify-between items-center mb-6">
+          <div className="bg-surface p-4 sm:p-6 lg:p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h3 className="font-display text-2xl text-text-main">Event Details</h3>
               {!isEditing ? (
                 <Button onPress={() => setIsEditing(true)} variant="bordered" size="sm" className="font-semibold rounded-full" startContent={<span className="material-symbols-outlined text-sm">edit</span>}>Edit</Button>
               ) : (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button onPress={() => setIsEditing(false)} variant="light" size="sm" className="font-semibold">Cancel</Button>
                   <Button onPress={handleSaveEdit} color="primary" size="sm" className="font-semibold rounded-full">Save</Button>
                 </div>
@@ -285,7 +285,7 @@ export default function EventDetailsPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                   <div><p className="text-xs font-semibold text-text-muted mb-1">Date</p><p className="text-text-main font-medium">{safeFormatDate(event.date, event.endDate, 'EEEE, MMMM d, yyyy · h:mm a')}</p></div>
                   <div><p className="text-xs font-semibold text-text-muted mb-1">Location</p><p className="text-text-main font-medium">{event.location}</p></div>
                   <div><p className="text-xs font-semibold text-text-muted mb-1">Type</p><p className="text-text-main font-medium capitalize">{event.eventType}</p></div>
@@ -296,8 +296,8 @@ export default function EventDetailsPage() {
           </div>
 
           {/* Share Section */}
-          <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
-            <div className="flex justify-between items-start mb-6">
+          <div className="bg-surface p-4 sm:p-6 lg:p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
               <div>
                 <h3 className="font-display text-2xl text-text-main mb-2">Share Invitation</h3>
                 <p className="text-text-muted font-medium">Send this link to your guests so they can RSVP.</p>
@@ -332,12 +332,12 @@ export default function EventDetailsPage() {
 
       {/* GUESTS TAB */}
       {activeTab === 'guests' && (
-        <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+        <div className="bg-surface p-4 sm:p-6 lg:p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
           <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
             <h3 className="font-display text-2xl text-text-main">Guest List</h3>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button onPress={handleExportCSV} variant="bordered" size="sm" className="font-semibold rounded-full" startContent={<span className="material-symbols-outlined text-sm">download</span>} isDisabled={!guestsExport || guestsExport.length === 0}>Export CSV</Button>
-              <span className="bg-background px-4 py-1.5 rounded-full text-sm font-semibold text-text-muted border border-border">{guests.length} Total</span>
+              <span className="bg-background px-4 py-1.5 rounded-full text-sm font-semibold text-text-muted border border-border whitespace-nowrap">{guests.length} Total</span>
             </div>
           </div>
 
@@ -386,10 +386,10 @@ export default function EventDetailsPage() {
 
       {/* MEDIA TAB */}
       {activeTab === 'media' && (
-        <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+        <div className="bg-surface p-4 sm:p-6 lg:p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
           <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
             <h3 className="font-display text-2xl text-text-main">Media Gallery</h3>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {['all', 'approved', 'pending', 'featured', 'rejected', 'hidden'].map((f) => (
                 <button
                   key={f}
@@ -449,7 +449,7 @@ export default function EventDetailsPage() {
       {activeTab === 'settings' && (
         <div className="space-y-6">
           {/* Invitation Template + Customization */}
-          <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+          <div className="bg-surface p-4 sm:p-6 lg:p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="font-display text-xl text-text-main">Invitation Appearance</h3>
@@ -686,7 +686,7 @@ export default function EventDetailsPage() {
           </div>
 
           {/* Event Status */}
-          <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+          <div className="bg-surface p-4 sm:p-6 lg:p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
             <h3 className="font-display text-xl text-text-main mb-4">Event Lifecycle</h3>
             <div className="flex items-center gap-3 flex-wrap">
               {statusFlow.map((s, i) => (
@@ -707,7 +707,7 @@ export default function EventDetailsPage() {
           </div>
 
           {/* Moderation Mode */}
-          <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+          <div className="bg-surface p-4 sm:p-6 lg:p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
             <h3 className="font-display text-xl text-text-main mb-2">Media Moderation</h3>
             <p className="text-text-muted text-sm mb-4">Control how guest uploads are handled.</p>
             <div className="flex gap-4">

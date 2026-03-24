@@ -46,10 +46,20 @@ export default function DashboardLayout() {
   const displayName = user?.name || user?.email?.split('@')[0] || 'Host';
   const displayInitial = displayName.charAt(0).toUpperCase();
 
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   return (
-    <div className="flex h-screen bg-gray-50 text-black antialiased overflow-hidden">
+    <div className="min-h-screen md:h-screen bg-gray-50 text-black antialiased md:overflow-hidden">
+      <div className="md:hidden sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-100 px-4 py-3 flex items-center justify-between">
+        <Link to="/" className="font-display text-xl font-bold tracking-tight text-black">Gerer Events</Link>
+        <Button variant="light" isIconOnly onPress={() => setMobileNavOpen((v) => !v)} aria-label="Toggle navigation">
+          <span className="material-symbols-outlined">{mobileNavOpen ? 'close' : 'menu'}</span>
+        </Button>
+      </div>
+
+      <div className="flex md:h-screen">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col z-10">
+      <aside className={`${mobileNavOpen ? 'block' : 'hidden'} md:flex w-full md:w-64 bg-white border-r border-gray-100 flex-col z-20 md:z-10 md:static fixed inset-x-0 top-[57px] bottom-0`}>
         <div className="p-6 border-b border-gray-100">
           <Link to="/" className="flex items-center gap-2 group">
             <span className="font-display text-2xl font-bold tracking-tight text-black">Gerer Events</span>
@@ -63,6 +73,7 @@ export default function DashboardLayout() {
               <Link
                 key={item.to}
                 to={item.to}
+                onClick={() => setMobileNavOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive(item.to, item.exact)
                   ? 'bg-[#18181B] text-white shadow-sm'
                   : 'text-gray-500 hover:bg-gray-100 hover:text-black'
@@ -97,9 +108,10 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 min-w-0 overflow-y-auto bg-gray-50">
         <Outlet />
       </main>
+      </div>
     </div>
   );
 }
