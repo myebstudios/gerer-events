@@ -10,6 +10,7 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const userId = getStoredUserId();
 
   const user = useQuery((api as any).auth.getUser, userId ? { userId } : "skip");
@@ -45,8 +46,6 @@ export default function DashboardLayout() {
 
   const displayName = user?.name || user?.email?.split('@')[0] || 'Host';
   const displayInitial = displayName.charAt(0).toUpperCase();
-
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <div className="min-h-screen md:h-screen bg-gray-50 text-black antialiased md:overflow-hidden">
