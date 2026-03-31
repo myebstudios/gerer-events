@@ -3,44 +3,50 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import * as React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import DashboardLayout from './layouts/DashboardLayout';
-import EventsPage from './pages/dashboard/EventsPage';
-import CreateEventPage from './pages/dashboard/CreateEventPage';
-import EventDetailsPage from './pages/dashboard/EventDetailsPage';
-import PublicEventPage from './pages/public/PublicEventPage';
-import RSVPPage from './pages/public/RSVPPage';
-import QRPassPage from './pages/public/QRPassPage';
-import UploadPage from './pages/public/UploadPage';
-import CheckInPage from './pages/dashboard/CheckInPage';
-import QuickQRPage from './pages/dashboard/QuickQRPage';
-import SettingsPage from './pages/dashboard/SettingsPage';
+
+const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const LoginPage = React.lazy(() => import('./pages/LoginPage'));
+const DashboardLayout = React.lazy(() => import('./layouts/DashboardLayout'));
+const EventsPage = React.lazy(() => import('./pages/dashboard/EventsPage'));
+const CreateEventPage = React.lazy(() => import('./pages/dashboard/CreateEventPage'));
+const EventDetailsPage = React.lazy(() => import('./pages/dashboard/EventDetailsPage'));
+const PublicEventPage = React.lazy(() => import('./pages/public/PublicEventPage'));
+const RSVPPage = React.lazy(() => import('./pages/public/RSVPPage'));
+const QRPassPage = React.lazy(() => import('./pages/public/QRPassPage'));
+const UploadPage = React.lazy(() => import('./pages/public/UploadPage'));
+const CheckInPage = React.lazy(() => import('./pages/dashboard/CheckInPage'));
+const QuickQRPage = React.lazy(() => import('./pages/dashboard/QuickQRPage'));
+const SettingsPage = React.lazy(() => import('./pages/dashboard/SettingsPage'));
+
+function Loader() {
+  return <div className="min-h-screen flex items-center justify-center text-text-muted font-medium bg-background">Loading...</div>;
+}
 
 export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
+      <React.Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* Host Dashboard */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<EventsPage />} />
-          <Route path="events/new" element={<CreateEventPage />} />
-          <Route path="events/:id" element={<EventDetailsPage />} />
-          <Route path="events/:id/checkin" element={<CheckInPage />} />
-          <Route path="tools/quick-qr" element={<QuickQRPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<EventsPage />} />
+            <Route path="events/new" element={<CreateEventPage />} />
+            <Route path="events/:id" element={<EventDetailsPage />} />
+            <Route path="events/:id/checkin" element={<CheckInPage />} />
+            <Route path="tools/quick-qr" element={<QuickQRPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
 
-        {/* Public Event Pages */}
-        <Route path="/e/:id" element={<PublicEventPage />} />
-        <Route path="/e/:id/rsvp" element={<RSVPPage />} />
-        <Route path="/e/:id/pass/:guestId" element={<QRPassPage />} />
-        <Route path="/e/:id/upload" element={<UploadPage />} />
-      </Routes>
+          <Route path="/e/:id" element={<PublicEventPage />} />
+          <Route path="/e/:id/rsvp" element={<RSVPPage />} />
+          <Route path="/e/:id/pass/:guestId" element={<QRPassPage />} />
+          <Route path="/e/:id/upload" element={<UploadPage />} />
+        </Routes>
+      </React.Suspense>
     </Router>
   );
 }
