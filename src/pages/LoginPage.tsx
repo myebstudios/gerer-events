@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
@@ -17,6 +18,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setNotice(null);
 
     try {
       if (isSignUp) {
@@ -25,9 +27,15 @@ export default function LoginPage() {
           password,
           options: {
             data: { full_name: name || undefined },
+            emailRedirectTo: 'https://gerer-events.netlify.app/login',
           },
         });
         if (error) throw error;
+        if (data.user && !data.session) {
+          setNotice('Confirmation email sent. Check your inbox and click the link to verify your account, then sign in here.');
+          setIsSignUp(false);
+          return;
+        }
         if (data.user) navigate('/dashboard');
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -93,6 +101,12 @@ export default function LoginPage() {
               </div>
             )}
 
+            {notice && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                <p className="text-sm text-emerald-700 font-medium">{notice}</p>
+              </div>
+            )}
+
             {isSignUp && (
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-black">Full Name</label>
@@ -139,6 +153,15 @@ export default function LoginPage() {
                 isRequired
                 classNames={{ inputWrapper: "border-gray-200 hover:border-gray-300 focus-within:!border-black shadow-sm" }}
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <Button type="button" variant="bordered" isDisabled className="h-12 rounded-full font-medium border-gray-200 text-gray-400">
+                Google, soon
+              </Button>
+              <Button type="button" variant="bordered" isDisabled className="h-12 rounded-full font-medium border-gray-200 text-gray-400">
+                Facebook, soon
+              </Button>
             </div>
 
             <Button
