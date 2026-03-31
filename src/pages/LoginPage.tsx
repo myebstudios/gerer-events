@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/api';
+import { supabase } from '../lib/supabase';
 import { Button, Input } from '@heroui/react';
-import { sanitizeId } from '../lib/id';
 
 export default function LoginPage() {
   const [name, setName] = useState('');
@@ -15,9 +13,6 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
-  const signUp = useMutation((api as any).auth.signUp);
-  const signIn = useMutation((api as any).auth.signIn);
-
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -25,17 +20,19 @@ export default function LoginPage() {
 
     try {
       if (isSignUp) {
-        const userId = await signUp({ name: name || undefined, email, password });
-        const safeUserId = sanitizeId(String(userId));
-        if (!safeUserId) throw new Error('Invalid account session. Please sign in again.');
-        localStorage.setItem('userId', safeUserId);
-        navigate('/dashboard');
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: name || undefined },
+          },
+        });
+        if (error) throw error;
+        if (data.user) navigate('/dashboard');
       } else {
-        const userId = await signIn({ email, password });
-        const safeUserId = sanitizeId(String(userId));
-        if (!safeUserId) throw new Error('Invalid account session. Please sign in again.');
-        localStorage.setItem('userId', safeUserId);
-        navigate('/dashboard');
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        if (data.user) navigate('/dashboard');
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during authentication');

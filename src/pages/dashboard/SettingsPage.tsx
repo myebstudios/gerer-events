@@ -1,28 +1,26 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
-import { sanitizeId, getStoredUserId } from '../../lib/id';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 import { Button, Input, Card, CardBody } from '@heroui/react';
 
 export default function SettingsPage() {
-    const userId = getStoredUserId();
-    const user = useQuery((api as any).auth.getUser, userId ? { userId } : "skip");
-    const updateUser = useMutation((api as any).auth.updateUser);
+    const { user } = useAuth();
 
     const [name, setName] = useState('');
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
     React.useEffect(() => {
-        if (user?.name) setName(user.name);
+        if (user?.user_metadata?.full_name) setName(user.user_metadata.full_name);
     }, [user]);
 
     const handleSave = async () => {
-        if (!userId) return;
+        if (!user) return;
         setSaving(true);
         try {
-            await updateUser({ userId, name });
+            const { error } = await supabase.auth.updateUser({ data: { full_name: name } });
+            if (error) throw error;
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
         } catch (err: any) {

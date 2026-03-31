@@ -15,7 +15,7 @@
     "@heroui/react": "^2.8.9",
     "@heroui/theme": "^2.4.26",
     "@radix-ui/react-slot": "^1.2.4",
-    "@supabase/supabase-js": "^2.98.0",
+    "@supabase/supabase-js": "^2.101.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "@zxing/browser": "^0.1.5",

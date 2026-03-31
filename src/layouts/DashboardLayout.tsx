@@ -1,32 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/api';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import { LogOut, Calendar, Plus, QrCode, Settings } from 'lucide-react';
 import { Button } from '@heroui/react';
-import { getStoredUserId } from '../lib/id';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const userId = getStoredUserId();
-
-  const user = useQuery((api as any).auth.getUser, userId ? { userId } : "skip");
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
     const checkUser = () => {
-      if (!userId) {
+      if (!authLoading && !user) {
         navigate('/login');
       }
-      setLoading(false);
+      if (!authLoading) setLoading(false);
     };
     checkUser();
-  }, [navigate, userId]);
+  }, [navigate, user, authLoading]);
 
-  const handleSignOut = () => {
-    localStorage.removeItem('userId');
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
     navigate('/');
   };
 
@@ -44,7 +41,7 @@ export default function DashboardLayout() {
     return location.pathname.startsWith(path);
   };
 
-  const displayName = user?.name || user?.email?.split('@')[0] || 'Host';
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Host';
   const displayInitial = displayName.charAt(0).toUpperCase();
 
   return (
