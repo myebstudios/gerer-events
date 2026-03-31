@@ -366,3 +366,96 @@ The right move is:
 4. launch publicly only after the launch gate criteria are satisfied
 
 That is how you avoid embarrassing event-day failures and protect the brand.
+
+
+---
+
+## Execution Split
+
+## Antigravity Tasks
+Use Antigravity for work that benefits from broad analysis, bulk review, and systematic refinement.
+
+### Recommended Antigravity scope
+1. **Code audit and migration leftover review**
+   - identify dead code
+   - identify risky patterns
+   - identify leftover hybrid Supabase/legacy logic
+   - identify maintainability issues
+
+2. **Performance audit**
+   - inspect build chunks
+   - recommend additional lazy loading and chunk splits
+   - identify heavy dependencies and routes
+   - suggest fast wins for bundle reduction
+
+3. **Accessibility review**
+   - contrast
+   - labels
+   - keyboard navigation
+   - focus states
+   - screen reader basics
+
+4. **UI/UX review**
+   - find weak mobile layouts
+   - identify clumsy host flows
+   - identify weak event-day operator UX
+   - suggest improvements to guest flows
+
+5. **QA matrix expansion**
+   - generate edge-case checklist
+   - enumerate high-risk test cases
+   - identify missing validations and error states
+
+6. **Error handling pass**
+   - locate alert-based flows
+   - suggest replacement UX patterns
+   - identify poor recovery states
+
+### Antigravity should produce
+- findings grouped by severity
+- exact files/components affected
+- suggested fixes
+- test matrix additions
+- performance recommendations
+- UX recommendations
+
+---
+
+## Alfa Direct Execution Tasks
+These are the tasks I should personally drive or verify directly.
+
+1. **Supabase RLS and security policy changes**
+2. **Storage rules and upload path hardening**
+3. **Auth redirect configuration**
+4. **Netlify environment configuration**
+5. **Hosted Supabase project configuration**
+6. **Database migrations and rollout order**
+7. **Production deploy verification**
+8. **Final end-to-end regression testing**
+9. **Rollback and recovery planning**
+10. **Any fix that touches secrets, auth, or production safety**
+
+---
+
+## User Approval / Decision Tasks
+These are the decisions that should come from Fildine, not be guessed.
+
+1. **Launch timing**
+2. **Whether Google auth should be enabled now or later**
+3. **Whether Facebook auth should ever be enabled**
+4. **What monitoring service to use**
+5. **How strict guest upload moderation should be by default**
+6. **Whether to allow event staff roles in v1 production or keep owner-only initially**
+7. **What level of polish is acceptable before launch**
+8. **Whether production should begin as private beta or open public launch**
+
+---
+
+## Recommended Antigravity Workflow
+1. Give Antigravity the production plan and repo context
+2. Ask for a structured audit with severity levels
+3. Let it propose exact implementation tasks
+4. Review the output
+5. Keep security, auth, infra, and deploy-critical actions under direct verification
+
+This keeps Antigravity useful without letting it freestyle into production risk.
