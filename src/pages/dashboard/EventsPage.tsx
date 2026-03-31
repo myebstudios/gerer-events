@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
-import { sanitizeId, getStoredUserId } from '../../lib/id';
 import { format } from 'date-fns';
+import { Card, CardBody, Button } from '@heroui/react';
+import { useSupabaseEvents, useSupabaseDashboardStats } from '../../hooks/useSupabaseEvents';
 
 const safeFormatDate = (dateStr: string, fmt: string, fallback = 'TBD') => {
   try {
@@ -12,14 +11,13 @@ const safeFormatDate = (dateStr: string, fmt: string, fallback = 'TBD') => {
     return format(d, fmt);
   } catch { return fallback; }
 };
-import { Card, CardBody, Button } from '@heroui/react';
 
 export default function EventsPage() {
-  const userId = getStoredUserId();
-  const events = useQuery((api as any).events.getEvents, userId ? { hostId: userId } : "skip");
-  const stats = useQuery((api as any).events.getDashboardStats, userId ? { hostId: userId } : "skip");
+  const { events, loading, error } = useSupabaseEvents();
+  const { stats } = useSupabaseDashboardStats();
 
-  if (events === undefined || stats === undefined) return <div className="p-8 text-text-muted font-medium">Loading events...</div>;
+  if (loading || !events) return <div className="p-8 text-text-muted font-medium">Loading events...</div>;
+  if (error) return <div className="p-8 text-red-500 font-medium">{error}</div>;
 
   const statCards = [
     { label: 'Total Events', value: stats.totalEvents, icon: 'event', color: 'bg-primary/10 text-primary' },
@@ -37,7 +35,6 @@ export default function EventsPage() {
         <Button as={Link as any} to="/dashboard/events/new" className="bg-[#18181B] text-white hover:bg-[#27272A] text-[15px] font-medium rounded-full px-6 py-5 shadow-sm transition-all" startContent={<span className="material-symbols-outlined text-lg">add</span>}>Create Event</Button>
       </div>
 
-      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         {statCards.map((stat) => (
           <Card key={stat.label} className="bg-white border border-gray-100 rounded-[24px] shadow-sm hover:shadow-md transition-shadow"><CardBody className="p-6">
@@ -56,9 +53,6 @@ export default function EventsPage() {
 
       <div className="mb-6 flex items-center justify-between">
         <h2 className="font-display text-2xl text-black font-medium tracking-tight">Recent Events</h2>
-        <button className="text-[15px] font-medium text-black hover:text-gray-500 transition-colors flex items-center gap-1">
-          View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-        </button>
       </div>
 
       {events.length === 0 ? (
@@ -71,11 +65,11 @@ export default function EventsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event: any) => (
-            <Link key={event._id} to={`/dashboard/events/${event._id}`} className="group block">
+            <Link key={event.id} to={`/dashboard/events/${event.id}`} className="group block">
               <div className="bg-white border border-gray-100 rounded-[24px] overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <div className="aspect-[4/3] relative overflow-hidden bg-gray-50">
-                  {event.coverImageUrl ? (
-                    <img src={event.coverImageUrl} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  {event.cover_image_url ? (
+                    <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <span className="material-symbols-outlined text-4xl text-gray-300">image</span>
@@ -88,7 +82,7 @@ export default function EventsPage() {
                 <div className="p-6">
                   <div className="flex items-center gap-2 text-gray-500 text-[13px] mb-2 font-medium">
                     <span className="material-symbols-outlined text-[15px]">calendar_today</span>
-                    {safeFormatDate(event.date, 'MMMM d, yyyy')}
+                    {safeFormatDate(event.starts_at, 'MMMM d, yyyy')}
                   </div>
                   <h3 className="font-display text-xl text-black mb-2 group-hover:text-gray-600 transition-colors font-semibold tracking-tight leading-tight">{event.title}</h3>
                   <p className="text-gray-500 text-[15px] line-clamp-2 mb-4 leading-relaxed">{event.description}</p>
