@@ -6,6 +6,7 @@ import { EVENT_TYPES, TEMPLATE_CATALOG, type EventType } from '../../lib/catalog
 import { Button, Input, Select, SelectItem, Textarea } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 
 const safeFormatDate = (dateStr: string, fmt: 'short' | 'long' = 'long', fallback = 'Your Event Date') => {
   if (!dateStr) return fallback;
@@ -25,6 +26,7 @@ function slugify(input: string) {
 export default function CreateEventPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { pushToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -94,9 +96,10 @@ export default function CreateEventPage() {
 
       const { data, error } = await supabase.from('events').insert(payload).select('id').single();
       if (error) throw error;
+      pushToast('Event created successfully.', 'success');
       navigate(`/dashboard/events/${data.id}`);
     } catch (error: any) {
-      alert(error.message || 'Failed to create event');
+      pushToast(error.message || 'Failed to create event', 'error');
     } finally {
       setLoading(false);
     }

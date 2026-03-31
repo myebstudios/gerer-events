@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { resolveTemplateTone } from '../../lib/catalog';
 import { sanitizeId } from '../../lib/id';
 import { supabase } from '../../lib/supabase';
+import { useToast } from '../../contexts/ToastContext';
 
 export default function RSVPPage() {
   const { id } = useParams();
@@ -14,6 +15,7 @@ export default function RSVPPage() {
   const [loadingEvent, setLoadingEvent] = React.useState(true);
 
   const [loading, setLoading] = useState(false);
+  const { pushToast } = useToast();
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -52,9 +54,10 @@ export default function RSVPPage() {
       };
       const { data, error } = await supabase.from('guests').insert(payload).select('id').single();
       if (error) throw error;
+      pushToast('RSVP confirmed successfully.', 'success');
       navigate(`/e/${safeEventId}/pass/${data.id}`);
     } catch (error: any) {
-      alert(error.message || 'Failed to submit RSVP');
+      pushToast(error.message || 'Failed to submit RSVP', 'error');
     } finally {
       setLoading(false);
     }

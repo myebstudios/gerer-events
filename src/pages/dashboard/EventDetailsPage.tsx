@@ -7,6 +7,7 @@ import { sanitizeId } from '../../lib/id';
 import { supabase } from '../../lib/supabase';
 import { useSupabaseEventDetails } from '../../hooks/useSupabaseEventDetails';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 
 const safeFormatDate = (dateStr: string, endDateStr?: string, fmt = 'MMMM d, yyyy', fallback = 'TBD') => {
   try {
@@ -30,6 +31,7 @@ export default function EventDetailsPage() {
   const safeEventId = sanitizeId(id);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { pushToast } = useToast();
 
   if (!safeEventId) return <div className="p-8 text-text-muted font-medium">Invalid event link.</div>;
 
@@ -66,38 +68,39 @@ export default function EventDetailsPage() {
       location: editData.location,
       description: editData.description || null,
     }).eq('id', event.id).eq('owner_id', user?.id);
-    if (error) return alert(error.message);
+    if (error) return pushToast(error.message, 'error');
     setIsEditing(false);
+    pushToast('Event updated successfully.', 'success');
     refresh();
   };
 
   const handleStatusChange = async (newStatus: string) => {
     const { error } = await supabase.from('events').update({ status: newStatus }).eq('id', event.id).eq('owner_id', user?.id);
-    if (error) return alert(error.message);
+    if (error) return pushToast(error.message, 'error');
     refresh();
   };
 
   const handleDeleteEvent = async () => {
     const { error } = await supabase.from('events').delete().eq('id', event.id).eq('owner_id', user?.id);
-    if (error) return alert(error.message);
+    if (error) return pushToast(error.message, 'error');
     navigate('/dashboard');
   };
 
   const handleDeleteGuest = async (guestId: string) => {
     const { error } = await supabase.from('guests').delete().eq('id', guestId).eq('event_id', event.id);
-    if (error) return alert(error.message);
+    if (error) return pushToast(error.message, 'error');
     refresh();
   };
 
   const handleModerateMedia = async (mediaId: string, status: string) => {
     const { error } = await supabase.from('media_uploads').update({ status, moderated_at: new Date().toISOString(), moderated_by: user?.id }).eq('id', mediaId);
-    if (error) return alert(error.message);
+    if (error) return pushToast(error.message, 'error');
     refresh();
   };
 
   const handleDeleteMedia = async (mediaId: string) => {
     const { error } = await supabase.from('media_uploads').delete().eq('id', mediaId);
-    if (error) return alert(error.message);
+    if (error) return pushToast(error.message, 'error');
     refresh();
   };
 
