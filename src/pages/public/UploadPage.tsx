@@ -5,11 +5,13 @@ import { motion } from 'framer-motion';
 import { resolveTemplateTone } from '../../lib/catalog';
 import { sanitizeId } from '../../lib/id';
 import { supabase } from '../../lib/supabase';
+import { useToast } from '../../contexts/ToastContext';
 
 export default function UploadPage() {
   const { id } = useParams();
   const safeEventId = sanitizeId(id);
   const [event, setEvent] = React.useState<any>(null);
+  const { pushToast } = useToast();
   const [qrToken, setQrToken] = useState('');
   const [guest, setGuest] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -37,8 +39,10 @@ export default function UploadPage() {
       if (!data) throw new Error('Invalid QR Token or guest not found.');
       if (!data.checked_in) throw new Error('Only checked-in guests can upload media.');
       setGuest(data);
+      pushToast('Access verified. You can upload now.', 'success');
     } catch (err: any) {
       setError(err.message);
+      pushToast(err.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -68,10 +72,13 @@ export default function UploadPage() {
         if (saveError) throw saveError;
       }
       setSuccess(true);
+      pushToast('Upload successful.', 'success');
       if (fileInputRef.current) fileInputRef.current.value = '';
       setTimeout(() => setSuccess(false), 5000);
     } catch (err: any) {
-      setError(err.message || 'Failed to upload files.');
+      const msg = err.message || 'Failed to upload files.';
+      setError(msg);
+      pushToast(msg, 'error');
     } finally {
       setLoading(false);
     }

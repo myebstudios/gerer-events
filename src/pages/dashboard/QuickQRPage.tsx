@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button, Input, Card, CardBody } from '@heroui/react';
+import { useToast } from '../../contexts/ToastContext';
 
 export default function QuickQRPage() {
   const [value, setValue] = React.useState('https://gerer-events.netlify.app');
+  const { pushToast } = useToast();
 
   const handleDownload = () => {
     const svg = document.querySelector('svg');
@@ -21,6 +23,7 @@ export default function QuickQRPage() {
       downloadLink.download = `quick-qr-${Date.now()}.png`;
       downloadLink.href = `${pngFile}`;
       downloadLink.click();
+      pushToast('QR downloaded.', 'success');
     };
     img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
   };

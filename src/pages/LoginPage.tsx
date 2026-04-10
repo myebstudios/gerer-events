@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useToast } from '../contexts/ToastContext';
 import { Button, Input } from '@heroui/react';
 
 export default function LoginPage() {
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
+  const { pushToast } = useToast();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,17 +35,23 @@ export default function LoginPage() {
         if (error) throw error;
         if (data.user && !data.session) {
           setNotice('Confirmation email sent. Check your inbox and click the link to verify your account, then sign in here.');
+          pushToast('Confirmation email sent. Check your inbox.', 'success');
           setIsSignUp(false);
           return;
         }
-        if (data.user) navigate('/dashboard');
+        if (data.user) {
+          pushToast('Signed in successfully.', 'success');
+          navigate('/dashboard');
+        }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         if (data.user) navigate('/dashboard');
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred during authentication');
+      const msg = err.message || 'An error occurred during authentication';
+      setError(msg);
+      pushToast(msg, 'error');
     } finally {
       setLoading(false);
     }
