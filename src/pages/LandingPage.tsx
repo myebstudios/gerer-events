@@ -4,6 +4,7 @@ import { Button } from '@heroui/react';
 import { motion } from 'framer-motion';
 
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const scrollToSection = (id: string) => {
     if (id === 'home') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -54,12 +55,20 @@ export default function LandingPage() {
 
             {/* Mobile Menu Icon */}
             <div className="md:hidden">
-              <button className="text-black">
+              <button type="button" className="text-black" onClick={() => setMobileMenuOpen((v) => !v)}>
                 <span className="material-symbols-outlined text-3xl">menu</span>
               </button>
             </div>
           </div>
         </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-100 py-4 space-y-3">
+            {[['Home','home'],['Features','features'],['Use Cases','use-cases'],['Pricing','pricing'],['Contact','contact']].map(([label, id]) => (
+              <button key={id} type="button" onClick={() => { scrollToSection(id); setMobileMenuOpen(false); }} className="block w-full text-left text-black text-sm font-medium py-2">{label}</button>
+            ))}
+            <Link to="/login" className="block w-full text-center bg-[#18181B] text-white rounded-full px-5 py-3 text-sm font-medium mt-3">Register</Link>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -89,15 +98,15 @@ export default function LandingPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="relative z-10 text-center px-4 max-w-4xl mx-auto"
         >
-          <h1 className="font-display text-5xl md:text-7xl lg:text-[76px] text-black mb-6 leading-[1.1] tracking-tight font-medium">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-[76px] text-black mb-6 leading-[1.1] tracking-tight font-medium">
             The smarter way<br /> to host your events.
           </h1>
-          <p className="text-gray-600 text-[17px] max-w-lg mx-auto mb-10 font-normal leading-relaxed">
+          <p className="text-gray-600 text-[15px] sm:text-[17px] max-w-lg mx-auto mb-10 font-normal leading-relaxed px-2">
             Create stunning event websites, manage RSVPs seamlessly, and delight your guests from the first click to the final check-in. The ultimate end-to-end event experience.
           </p>
 
           <div className="flex flex-col items-center gap-4">
-            <Button as={Link as any} to="/login" className="bg-[#18181B] text-white px-8 py-6 text-[15px] font-medium rounded-full hover:bg-[#27272A] inline-flex items-center gap-2">
+            <Button as={Link as any} to="/login" className="bg-[#18181B] text-white px-8 py-6 text-[15px] font-medium rounded-full hover:bg-[#27272A] inline-flex items-center gap-2 w-full sm:w-auto">
               Get Started for Free
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Button>
@@ -131,7 +140,7 @@ export default function LandingPage() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="w-full px-4 overflow-hidden relative z-10"
         >
-          <div className="flex justify-center items-end gap-5 h-[320px]">
+          <div className="hidden md:flex justify-center items-end gap-5 h-[320px]">
             {/* Small Image Left */}
             <div className="w-[180px] h-[220px] rounded-[32px] overflow-hidden flex-shrink-0 animate-pulse-slow outline outline-1 outline-gray-200/50">
               <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover" alt="Disco Party" />
@@ -152,6 +161,11 @@ export default function LandingPage() {
             <div className="w-[180px] h-[220px] rounded-[32px] overflow-hidden flex-shrink-0 outline outline-1 outline-gray-200/50">
               <img src="https://images.unsplash.com/photo-1533174000255-22bcae2f8dc4?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover" alt="Celebration Sparklers" />
             </div>
+          </div>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }} className="md:hidden w-full px-4 mt-12 relative z-10">
+          <div className="w-full h-[260px] rounded-[32px] overflow-hidden shadow-lg outline outline-1 outline-gray-200/50">
+            <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Wedding Party" />
           </div>
         </motion.div>
       </header>

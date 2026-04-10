@@ -113,7 +113,7 @@ export default function CreateEventPage() {
   ];
 
   return (
-    <div className="p-8 lg:p-12 max-w-5xl mx-auto min-h-[calc(100vh-80px)] flex flex-col">
+    <div className="p-4 sm:p-6 lg:p-12 max-w-5xl mx-auto min-h-[calc(100vh-80px)] flex flex-col">
       <div className="mb-8">
         <Link to="/dashboard" className="text-gray-500 hover:text-black text-sm font-semibold flex items-center gap-2 mb-6 transition-colors w-fit">
           <span className="material-symbols-outlined text-sm">arrow_back</span> Back to Dashboard
@@ -128,7 +128,7 @@ export default function CreateEventPage() {
         <div className={`flex-1 h-1.5 rounded-full transition-colors duration-500 ${step >= 3 ? 'bg-black' : 'bg-gray-100'}`}></div>
       </div>
 
-      <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 p-8 md:p-12 flex-1 relative overflow-hidden">
+      <div className="bg-white rounded-[28px] sm:rounded-[32px] shadow-sm border border-gray-100 p-4 sm:p-6 md:p-12 flex-1 relative overflow-hidden">
         <form onSubmit={handleSubmit} className="h-full flex flex-col">
           <AnimatePresence mode="wait">
             {step === 1 && (
@@ -175,7 +175,7 @@ export default function CreateEventPage() {
               </motion.div>
             )}
             {step === 2 && (
-              <motion.div key="step2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex-1 flex flex-col md:flex-row gap-12">
+              <motion.div key="step2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex-1 flex flex-col md:flex-row gap-6 md:gap-12">
                 <div className="md:w-1/2 space-y-6">
                   <div>
                     <h2 className="font-display text-2xl text-black font-semibold">Choose a Layout</h2>
@@ -196,7 +196,7 @@ export default function CreateEventPage() {
                     ))}
                   </div>
                 </div>
-                <div className="md:w-1/2 bg-gray-50 rounded-[32px] p-6 lg:p-8 flex flex-col items-center justify-center border border-gray-100">
+                <div className="md:w-1/2 bg-gray-50 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center border border-gray-100">
                   <p className="text-xs text-center font-semibold tracking-widest uppercase text-gray-400 mb-6">Live Preview</p>
                   <div className="w-full max-w-[260px] rounded-[2.2rem] shadow-2xl border-[7px] border-gray-900 overflow-hidden flex flex-col bg-white" style={{ aspectRatio: '9/19' }}>
                     <div className="bg-gray-900 flex justify-center pt-2 pb-1 flex-shrink-0"><div className="bg-black w-20 h-4 rounded-full"></div></div>
