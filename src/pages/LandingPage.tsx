@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@heroui/react';
+import { ACCESS_CONTACT } from '../lib/access';
 import { motion } from 'framer-motion';
 
 export default function LandingPage() {
@@ -107,7 +108,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col items-center gap-4">
             <Button as={Link as any} to="/login" className="bg-[#18181B] text-white px-8 py-6 text-[15px] font-medium rounded-full hover:bg-[#27272A] inline-flex items-center gap-2 w-full sm:w-auto">
-              Get Started for Free
+              Get Access for Free
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Button>
             <p className="text-xs text-gray-600 flex items-center gap-1 font-medium mt-2">
@@ -345,7 +346,7 @@ export default function LandingPage() {
                 <li className="flex items-center gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Watermarked</li>
                 <li className="flex items-center gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Limited capacity</li>
               </ul>
-              <Button as={Link as any} to="/login" className="w-full bg-gray-100 text-black hover:bg-gray-200 rounded-full font-medium">Get Started</Button>
+              <Button as={Link as any} to="/login" className="w-full bg-gray-100 text-black hover:bg-gray-200 rounded-full font-medium">Get Access</Button>
             </div>
             {/* Event Pass */}
             <div className="bg-[#18181B] text-white p-8 rounded-[32px] border border-gray-800 shadow-xl relative transform lg:-translate-y-4">

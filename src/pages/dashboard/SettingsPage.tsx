@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button, Input, Card, CardBody } from '@heroui/react';
+import { useToast } from '../../contexts/ToastContext';
+import { ACCESS_CONTACT } from '../../lib/access';
 
 export default function SettingsPage() {
     const { user } = useAuth();
@@ -10,6 +12,7 @@ export default function SettingsPage() {
     const [name, setName] = useState('');
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const { pushToast } = useToast();
 
     React.useEffect(() => {
         if (user?.user_metadata?.full_name) setName(user.user_metadata.full_name);
@@ -22,9 +25,10 @@ export default function SettingsPage() {
             const { error } = await supabase.auth.updateUser({ data: { full_name: name } });
             if (error) throw error;
             setSaved(true);
+            pushToast('Profile updated successfully.', 'success');
             setTimeout(() => setSaved(false), 3000);
         } catch (err: any) {
-            alert(err.message);
+            pushToast(err.message, 'error');
         } finally {
             setSaving(false);
         }
@@ -35,8 +39,8 @@ export default function SettingsPage() {
     const plans = [
         { name: 'Free', price: '0 XAF', features: ['1 event', 'Basic template', 'Watermark', 'Limited capacity'], current: true },
         { name: 'Event Pass', price: '15,000 XAF/event', features: ['Premium template', 'No watermark', 'Higher limits', 'QR passes'], current: false },
-        { name: 'Studio', price: '25,000 XAF/month', features: ['Multiple events', 'Analytics', 'CSV export', 'Priority support'], current: false },
-        { name: 'Agency', price: '75,000 XAF/month', features: ['Team seats', 'White-label', 'All features', 'Dedicated support'], current: false },
+        { name: 'Pro Contract', price: 'Contact for access', features: ['Multiple events', 'Analytics', 'CSV export', 'Priority support'], current: false },
+        { name: 'Agency Contract', price: 'Contact for access', features: ['Team seats', 'White-label', 'All features', 'Dedicated support'], current: false },
     ];
 
     return (
@@ -128,6 +132,27 @@ export default function SettingsPage() {
                     </div>
                 </CardBody>
             </Card>
+
+            <div className="bg-white border border-gray-100 rounded-[28px] shadow-sm p-6 md:p-8 mt-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                    <div>
+                        <h2 className="font-display text-2xl text-black font-medium tracking-tight">Access Contract</h2>
+                        <p className="text-gray-500 text-sm mt-1">Manual access is enabled while direct in-app payment is not yet active.</p>
+                    </div>
+                    <span className="inline-flex w-fit px-3 py-1 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-700 capitalize">
+                        {user?.user_metadata?.access_tier || 'free'} / {user?.user_metadata?.contract_status || 'inactive'}
+                    </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <a href={ACCESS_CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full bg-[#18181B] text-white px-5 py-3 text-sm font-medium hover:bg-[#27272A] transition-colors">
+                        Contact on WhatsApp
+                    </a>
+                    <a href={ACCESS_CONTACT.email} className="inline-flex items-center justify-center rounded-full border border-gray-200 text-black px-5 py-3 text-sm font-medium hover:bg-gray-50 transition-colors">
+                        Request Access by Email
+                    </a>
+                </div>
+            </div>
+
         </div>
     );
 }
