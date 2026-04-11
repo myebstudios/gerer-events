@@ -13,13 +13,14 @@ export default function DashboardLayout() {
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    const checkUser = () => {
-      if (!authLoading && !user) {
-        navigate('/login');
-      }
-      if (!authLoading) setLoading(false);
-    };
-    checkUser();
+    if (authLoading) return;
+
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    setLoading(false);
   }, [navigate, user, authLoading]);
 
   const handleSignOut = async () => {
