@@ -19,6 +19,7 @@ const UploadPage = React.lazy(() => import('./pages/public/UploadPage'));
 const CheckInPage = React.lazy(() => import('./pages/dashboard/CheckInPage'));
 const QuickQRPage = React.lazy(() => import('./pages/dashboard/QuickQRPage'));
 const SettingsPage = React.lazy(() => import('./pages/dashboard/SettingsPage'));
+const QrCheckInPage = React.lazy(() => import('./pages/QrCheckInPage'));
 
 function Loader() {
   return <div className="min-h-screen flex items-center justify-center text-text-muted font-medium bg-background">Loading...</div>;
@@ -31,6 +32,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/check-in" element={<QrCheckInPage />} />
 
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<EventsPage />} />

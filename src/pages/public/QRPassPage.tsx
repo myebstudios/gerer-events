@@ -39,6 +39,8 @@ export default function QRPassPage() {
   } as const;
   const styles = templateStyles[template] || templateStyles.minimal;
 
+  const qrCheckInUrl = new URL(`/check-in?eventId=${safeEventId}&guestId=${guest.id}&token=${encodeURIComponent(guest.qr_token)}`, window.location.origin).toString();
+
   const generateGoogleCalendarUrl = (evt: any) => {
     const title = encodeURIComponent(evt.title);
     const details = encodeURIComponent(evt.description || '');
@@ -87,8 +89,8 @@ export default function QRPassPage() {
           <div className={`p-8 text-center relative ${styles.cardHeader}`}><div className={`absolute -bottom-4 -left-4 w-8 h-8 rounded-full ${styles.cutout}`}></div><div className={`absolute -bottom-4 -right-4 w-8 h-8 rounded-full ${styles.cutout}`}></div><p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 opacity-70">Admit One</p><h2 className="text-3xl mb-1 font-bold">{event.title}</h2><p className="text-sm opacity-80">{format(new Date(event.starts_at), 'MMMM do, yyyy • h:mm a')}</p></div>
           <div className="p-8 flex flex-col items-center relative">
             <div className="w-full mb-8"><div className="flex justify-between items-end mb-4"><div><p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Guest</p><h3 className="text-2xl font-bold">{guest.full_name}</h3></div><div className="text-right"><p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Status</p><p className="text-xl capitalize font-bold">{guest.attendance_status}</p></div></div>{guest.plus_ones > 0 && <div className="mt-4 pt-4 border-t border-current/10"><p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Additional Guests</p><p className="text-xl font-bold">+{guest.plus_ones}</p></div>}</div>
-            <div className={`rounded-2xl shadow-sm border border-current/10 mb-6 p-4 ${styles.qrBg}`}><QRCodeSVG value={guest.qr_token} size={220} bgColor="#ffffff" fgColor="#000000" level="H" includeMargin={false} /></div>
-            <p className="text-xs font-mono tracking-widest uppercase opacity-50">{String(guest.qr_token).substring(0, 16)}...</p>
+            <div className={`rounded-2xl shadow-sm border border-current/10 mb-6 p-4 ${styles.qrBg}`}><QRCodeSVG value={qrCheckInUrl} size={220} bgColor="#ffffff" fgColor="#000000" level="H" includeMargin={false} /></div>
+            <p className="text-xs font-mono tracking-widest uppercase opacity-50 break-all text-center">{qrCheckInUrl}</p>
           </div>
         </div>
         <div className="mt-8 flex flex-col gap-3">

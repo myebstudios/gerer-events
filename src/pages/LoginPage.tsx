@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../contexts/ToastContext';
 import { Button, Input } from '@heroui/react';
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { pushToast } = useToast();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -41,12 +42,16 @@ export default function LoginPage() {
         }
         if (data.user) {
           pushToast('Signed in successfully.', 'success');
-          navigate('/dashboard');
+          const next = new URLSearchParams(location.search).get('next');
+          navigate(next || '/dashboard');
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        if (data.user) navigate('/dashboard');
+        if (data.user) {
+          const next = new URLSearchParams(location.search).get('next');
+          navigate(next || '/dashboard');
+        }
       }
     } catch (err: any) {
       const msg = err.message || 'An error occurred during authentication';

@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase';
 import { useSupabaseEventDetails } from '../../hooks/useSupabaseEventDetails';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { getEventRole, canManageWithRole, canModerateMediaWithRole } from '../../lib/eventAccess';
 
 const safeFormatDate = (dateStr: string, endDateStr?: string, fmt = 'MMMM d, yyyy', fallback = 'TBD') => {
   try {
@@ -41,6 +42,11 @@ export default function EventDetailsPage() {
   const [isEditing, setIsEditing] = React.useState(false);
   const [editData, setEditData] = React.useState({ title: '', date: '', endDate: '', location: '', description: '' });
   const [mediaFilter, setMediaFilter] = React.useState('all');
+  const [eventRole, setEventRole] = React.useState<any>(null);
+  const [inviteEmail, setInviteEmail] = React.useState('');
+  const [inviteRole, setInviteRole] = React.useState('checkin_staff');
+  const [staffRows, setStaffRows] = React.useState<any[]>([]);
+  const [inviteRows, setInviteRows] = React.useState<any[]>([]);
 
   React.useEffect(() => {
     if (event) {
@@ -53,6 +59,61 @@ export default function EventDetailsPage() {
       });
     }
   }, [event]);
+
+
+  React.useEffect(() => {
+    const loadCollaboration = async () => {
+      if (!event?.id) return;
+      try {
+        const role = await getEventRole(event.id);
+        setEventRole(role);
+
+        if (!canManageWithRole(role)) return;
+
+        const [{ data: staffData }, { data: inviteData }] = await Promise.all([
+          supabase.from('event_staff').select('id, role, user_id, profiles(full_name, email)').eq('event_id', event.id).order('created_at', { ascending: true }),
+          supabase.from('event_invites').select('*').eq('event_id', event.id).order('created_at', { ascending: false }),
+        ]);
+
+        setStaffRows(staffData || []);
+        setInviteRows(inviteData || []);
+      } catch (error: any) {
+        console.error(error);
+      }
+    };
+
+    void loadCollaboration();
+  }, [event?.id, refresh]);
+
+  const handleInviteCollaborator = async () => {
+    if (!inviteEmail.trim()) return pushToast('Enter an email address first.', 'error');
+    const { error } = await supabase.from('event_invites').upsert({
+      event_id: event.id,
+      email: inviteEmail.trim().toLowerCase(),
+      role: inviteRole,
+      invited_by: user?.id,
+      status: 'pending',
+    }, { onConflict: 'event_id,email' });
+
+    if (error) return pushToast(error.message, 'error');
+    pushToast('Collaborator invite saved.', 'success');
+    setInviteEmail('');
+    refresh();
+  };
+
+  const handleUpdateStaffRole = async (staffId: string, role: string) => {
+    const { error } = await supabase.from('event_staff').update({ role }).eq('id', staffId).eq('event_id', event.id);
+    if (error) return pushToast(error.message, 'error');
+    pushToast('Role updated.', 'success');
+    refresh();
+  };
+
+  const handleRevokeInvite = async (inviteId: string) => {
+    const { error } = await supabase.from('event_invites').update({ status: 'revoked' }).eq('id', inviteId).eq('event_id', event.id);
+    if (error) return pushToast(error.message, 'error');
+    pushToast('Invite revoked.', 'success');
+    refresh();
+  };
 
   if (loading) return <div className="p-8 text-text-muted font-medium">Loading...</div>;
   if (error) return <div className="p-8 text-red-500 font-medium">{error}</div>;
@@ -93,6 +154,7 @@ export default function EventDetailsPage() {
   };
 
   const handleModerateMedia = async (mediaId: string, status: string) => {
+    if (!canModerateMediaWithRole(eventRole)) return pushToast('You do not have permission to moderate media for this event.', 'error');
     const { error } = await supabase.from('media_uploads').update({ status, moderated_at: new Date().toISOString(), moderated_by: user?.id }).eq('id', mediaId);
     if (error) return pushToast(error.message, 'error');
     refresh();
@@ -135,6 +197,7 @@ export default function EventDetailsPage() {
     { id: 'overview', label: 'Overview' },
     { id: 'guests', label: `Guests (${guests.length})` },
     { id: 'media', label: `Media (${media.length})` },
+    { id: 'collaboration', label: 'Collaboration' },
   ];
 
   return (
@@ -158,7 +221,7 @@ export default function EventDetailsPage() {
           {event.status === 'published' && <Button onPress={() => handleStatusChange('live')} className="text-sm font-semibold rounded-full bg-emerald text-white">Go Live</Button>}
           {event.status === 'live' && <Button onPress={() => handleStatusChange('ended')} color="danger" variant="bordered" className="text-sm font-semibold rounded-full">End Event</Button>}
           <Button as="a" href={publicUrl} target="_blank" rel="noopener noreferrer" variant="bordered" className="text-sm font-semibold rounded-full w-full sm:w-auto">View Public Page</Button>
-          <Button as={Link as any} to={`/dashboard/events/${event.id}/checkin`} color="primary" className="text-sm font-semibold rounded-full w-full sm:w-auto">Check-in Scanner</Button>
+          <Button as={Link as any} to={`/dashboard/events/${event.id}/checkin`} color="primary" className="text-sm font-semibold rounded-full w-full sm:w-auto">Check-in Desk</Button>
         </div>
       </div>
 
@@ -253,6 +316,74 @@ export default function EventDetailsPage() {
                 {guests.length === 0 && <tr><td colSpan={6} className="py-12 text-center text-text-muted font-medium">No guests have RSVP'd yet.</td></tr>}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'collaboration' && (
+        <div className="space-y-6">
+          <div className="bg-surface p-4 sm:p-6 lg:p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+              <div>
+                <h3 className="font-display text-2xl text-text-main">Collaboration</h3>
+                <p className="text-text-muted font-medium mt-2">Invite trusted teammates and assign event roles for check-in or moderation.</p>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-background border border-border text-xs font-semibold capitalize">{eventRole || 'viewer'}</span>
+            </div>
+
+            {canManageWithRole(eventRole) ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr),220px,auto] gap-3 mb-8">
+                  <Input value={inviteEmail} onValueChange={setInviteEmail} type="email" placeholder="teammate@example.com" variant="bordered" />
+                  <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className="h-12 rounded-xl border border-border bg-white px-4 text-sm font-medium text-text-main">
+                    <option value="manager">Manager</option>
+                    <option value="checkin_staff">Check-in staff</option>
+                    <option value="media_moderator">Media moderator</option>
+                    <option value="viewer">Viewer</option>
+                  </select>
+                  <Button onPress={handleInviteCollaborator} color="primary" className="rounded-full font-semibold">Send Invite</Button>
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  <div className="border border-border rounded-2xl overflow-hidden">
+                    <div className="px-5 py-4 border-b border-border bg-background/50"><h4 className="font-semibold text-text-main">Active Team</h4></div>
+                    <div className="divide-y divide-border">
+                      {staffRows.length > 0 ? staffRows.map((staff: any) => (
+                        <div key={staff.id} className="p-4 flex items-center justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-text-main">{staff.profiles?.full_name || 'Team member'}</p>
+                            <p className="text-sm text-text-muted">{staff.profiles?.email || 'No email'}</p>
+                          </div>
+                          <select value={staff.role} onChange={(e) => handleUpdateStaffRole(staff.id, e.target.value)} className="h-10 rounded-full border border-border bg-white px-4 text-xs font-semibold text-text-main">
+                            <option value="manager">Manager</option>
+                            <option value="checkin_staff">Check-in staff</option>
+                            <option value="media_moderator">Media moderator</option>
+                            <option value="viewer">Viewer</option>
+                          </select>
+                        </div>
+                      )) : <div className="p-6 text-sm text-text-muted">No collaborators yet.</div>}
+                    </div>
+                  </div>
+
+                  <div className="border border-border rounded-2xl overflow-hidden">
+                    <div className="px-5 py-4 border-b border-border bg-background/50"><h4 className="font-semibold text-text-main">Pending Invites</h4></div>
+                    <div className="divide-y divide-border">
+                      {inviteRows.length > 0 ? inviteRows.map((invite: any) => (
+                        <div key={invite.id} className="p-4 flex items-center justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-text-main">{invite.email}</p>
+                            <p className="text-sm text-text-muted capitalize">{invite.role.replace('_', ' ')} • {invite.status}</p>
+                          </div>
+                          {invite.status === 'pending' ? <Button onPress={() => handleRevokeInvite(invite.id)} variant="bordered" className="rounded-full font-semibold">Revoke</Button> : <span className="text-xs text-text-subtle font-semibold uppercase">{invite.status}</span>}
+                        </div>
+                      )) : <div className="p-6 text-sm text-text-muted">No invites yet.</div>}
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="rounded-2xl border border-border bg-background/60 p-6 text-sm text-text-muted">You can view your event role here, but only owners and managers can manage collaborators.</div>
+            )}
           </div>
         </div>
       )}

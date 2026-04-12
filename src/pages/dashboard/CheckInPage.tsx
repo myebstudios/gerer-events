@@ -153,7 +153,7 @@ export default function CheckInPage() {
     <div className="p-4 sm:p-6 lg:p-12 max-w-7xl mx-auto w-full flex flex-col">
       <div className="mb-8">
         <Link to={`/dashboard/events/${safeEventId}`} className="text-text-muted hover:text-primary text-sm font-semibold flex items-center gap-2 mb-6 transition-colors w-fit"><span className="material-symbols-outlined text-sm">arrow_back</span> Back to Event</Link>
-        <h1 className="font-display text-3xl md:text-4xl text-text-main mb-2">Guest Check-in</h1>
+        <h1 className="font-display text-3xl md:text-4xl text-text-main mb-2">Check-in Desk</h1>
         <p className="text-text-muted">{event?.title}</p>
       </div>
 
@@ -164,10 +164,9 @@ export default function CheckInPage() {
             <div className="w-full max-w-md relative z-10 flex flex-col items-center">
               <div className="w-full rounded-2xl border border-border bg-background/60 p-6 mb-5 text-center">
                 <span className="material-symbols-outlined text-5xl text-primary/50 mb-3">link</span>
-                <h2 className="font-display text-2xl text-text-main mb-2">Use any QR scanner</h2>
+                <h2 className="font-display text-2xl text-text-main mb-2">Use any QR scanner or camera app</h2>
                 <p className="text-sm text-text-muted leading-relaxed">
-                  Organizers can scan guest QR codes with any phone QR app. The scanned link should open in the browser,
-                  and the guest can be checked in instantly from that token.
+                  Organizers can scan guest QR codes with any phone QR app. The scanned link should open directly in the browser. Staff will be asked to log in first if needed, then the guest will be checked in automatically if they have permission.
                 </p>
               </div>
 
@@ -176,7 +175,7 @@ export default function CheckInPage() {
                 <ol className="list-decimal pl-5 space-y-2">
                   <li>Use any QR code scanner app or native phone camera.</li>
                   <li>Open the scanned link in the browser.</li>
-                  <li>If needed, paste the token or full check-in link below.</li>
+                  <li>If the scanner app only shows text, paste the token or full check-in link below.</li>
                   <li>Verify the guest and continue with the line moving.</li>
                 </ol>
               </div>
