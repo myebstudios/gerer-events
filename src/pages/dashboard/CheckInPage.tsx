@@ -150,19 +150,19 @@ export default function CheckInPage() {
   const checkedInCount = guests.filter((guest) => guest.checked_in).length;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-12 max-w-7xl mx-auto h-full flex flex-col">
+    <div className="p-4 sm:p-6 lg:p-12 max-w-7xl mx-auto w-full flex flex-col">
       <div className="mb-8">
         <Link to={`/dashboard/events/${safeEventId}`} className="text-text-muted hover:text-primary text-sm font-semibold flex items-center gap-2 mb-6 transition-colors w-fit"><span className="material-symbols-outlined text-sm">arrow_back</span> Back to Event</Link>
         <h1 className="font-display text-3xl md:text-4xl text-text-main mb-2">Guest Check-in</h1>
         <p className="text-text-muted">{event?.title}</p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,420px),minmax(0,1fr)] gap-6 flex-1 min-h-0">
-        <Card className="bg-surface border border-border rounded-2xl shadow-[var(--shadow-card)]">
-          <CardBody className="p-6 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(360px,420px),minmax(0,1fr)] gap-6 items-start">
+        <Card className="bg-surface border border-border rounded-2xl shadow-[var(--shadow-card)] h-fit xl:sticky xl:top-6">
+          <CardBody className="p-6 sm:p-8 flex flex-col items-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary opacity-5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
             <div className="w-full max-w-md relative z-10 flex flex-col items-center">
-              <div className="w-full rounded-2xl border border-border bg-background/60 p-6 mb-6 text-center">
+              <div className="w-full rounded-2xl border border-border bg-background/60 p-6 mb-5 text-center">
                 <span className="material-symbols-outlined text-5xl text-primary/50 mb-3">link</span>
                 <h2 className="font-display text-2xl text-text-main mb-2">Use any QR scanner</h2>
                 <p className="text-sm text-text-muted leading-relaxed">
@@ -171,7 +171,7 @@ export default function CheckInPage() {
                 </p>
               </div>
 
-              <div className="w-full rounded-2xl border border-border bg-background p-5 mb-6 text-sm text-text-muted space-y-3">
+              <div className="w-full rounded-2xl border border-border bg-background p-5 mb-5 text-sm text-text-muted space-y-3">
                 <p className="font-semibold text-text-main">Recommended event-day flow</p>
                 <ol className="list-decimal pl-5 space-y-2">
                   <li>Use any QR code scanner app or native phone camera.</li>
@@ -181,11 +181,11 @@ export default function CheckInPage() {
                 </ol>
               </div>
 
-              <div className="w-full max-w-sm relative z-10">
+              <div className="w-full relative z-10">
                 <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4 text-center">Enter token or scanned link</p>
-                <form onSubmit={handleQRSubmit} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-                  <Input value={qrToken} onValueChange={setQrToken} placeholder="Paste token or guest check-in link" variant="bordered" className="flex-1" />
-                  <Button type="submit" color="primary" className="font-semibold rounded-full px-6">Verify</Button>
+                <form onSubmit={handleQRSubmit} className="flex flex-col gap-3 items-stretch">
+                  <Input value={qrToken} onValueChange={setQrToken} placeholder="Paste token or guest check-in link" variant="bordered" className="w-full" />
+                  <Button type="submit" color="primary" className="font-semibold rounded-full px-6 w-full sm:w-full">Verify</Button>
                 </form>
                 {message && <div className={`mt-4 p-4 text-sm font-medium text-center rounded-xl ${message.type === 'success' ? 'bg-primary-light text-primary border border-primary/20' : 'bg-red-light text-red border border-red/20'}`}>{message.text}</div>}
               </div>
@@ -193,7 +193,7 @@ export default function CheckInPage() {
           </CardBody>
         </Card>
 
-        <Card className="bg-surface border border-border rounded-2xl shadow-[var(--shadow-card)] flex flex-col h-[600px] lg:h-auto">
+        <Card className="bg-surface border border-border rounded-2xl shadow-[var(--shadow-card)] flex flex-col min-h-[420px] xl:min-h-[600px]">
           <CardBody className="p-0 flex flex-col h-full">
             <div className="p-6 border-b border-border">
               <h3 className="font-display text-2xl text-text-main mb-4">Guest List</h3>
