@@ -18,7 +18,7 @@ export function useSupabaseEventDetails(eventId?: string | null) {
     setLoading(true);
 
     const [{ data: eventData, error: eventError }, { data: guestData, error: guestError }, { data: mediaData, error: mediaError }] = await Promise.all([
-      supabase.from('events').select('*').eq('id', eventId).eq('owner_id', user.id).maybeSingle(),
+      supabase.from('events').select('*').eq('id', eventId).maybeSingle(),
       supabase.from('guests').select('*').eq('event_id', eventId).order('created_at', { ascending: false }),
       supabase.from('media_uploads').select('*').eq('event_id', eventId).order('uploaded_at', { ascending: false }),
     ]);

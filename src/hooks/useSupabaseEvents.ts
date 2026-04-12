@@ -38,7 +38,6 @@ export function useSupabaseEvents() {
     const { data, error } = await supabase
       .from('events')
       .select('*')
-      .eq('owner_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) {

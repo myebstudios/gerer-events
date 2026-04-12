@@ -54,7 +54,7 @@ export default function CheckInPage() {
     setLoading(true);
 
     const [{ data: eventData, error: eventError }, { data: guestsData, error: guestsError }] = await Promise.all([
-      supabase.from('events').select('*').eq('id', safeEventId).eq('owner_id', user.id).maybeSingle(),
+      supabase.from('events').select('*').eq('id', safeEventId).maybeSingle(),
       supabase
         .from('guests')
         .select('id, full_name, email, qr_token, attendance_status, plus_ones, checked_in, checked_in_at')
