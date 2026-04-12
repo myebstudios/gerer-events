@@ -372,9 +372,9 @@ export default function EventDetailsPage() {
                         <div key={invite.id} className="p-4 flex items-center justify-between gap-3">
                           <div>
                             <p className="font-semibold text-text-main">{invite.email}</p>
-                            <p className="text-sm text-text-muted capitalize">{invite.role.replace('_', ' ')} • {invite.status}</p>
+                            <p className="text-sm text-text-muted capitalize">{invite.role.replace('_', ' ')} • {invite.status}</p><p className="text-[11px] text-text-subtle mt-1 break-all">{new URL(`/invite?token=${invite.invite_token}`, window.location.origin).toString()}</p>
                           </div>
-                          {invite.status === 'pending' ? <Button onPress={() => handleRevokeInvite(invite.id)} variant="bordered" className="rounded-full font-semibold">Revoke</Button> : <span className="text-xs text-text-subtle font-semibold uppercase">{invite.status}</span>}
+                          {invite.status === 'pending' ? <div className="flex gap-2"><Button onPress={() => navigator.clipboard.writeText(new URL(`/invite?token=${invite.invite_token}`, window.location.origin).toString())} variant="light" className="rounded-full font-semibold">Copy Link</Button><Button onPress={() => handleRevokeInvite(invite.id)} variant="bordered" className="rounded-full font-semibold">Revoke</Button></div> : <span className="text-xs text-text-subtle font-semibold uppercase">{invite.status}</span>}
                         </div>
                       )) : <div className="p-6 text-sm text-text-muted">No invites yet.</div>}
                     </div>
