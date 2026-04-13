@@ -212,17 +212,17 @@ export default function LandingPage() {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button as={Link as any} to="/login" className="rounded-full bg-[#18181B] px-8 py-6 text-[15px] font-medium text-white hover:bg-[#2a2a2e]">
+              <Button as={Link as any} to="/login" className="rounded-full bg-[#18181B] px-8 py-6 text-[15px] font-medium text-white hover:bg-[#2a2a2e] transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
                 Start Hosting
               </Button>
-              <a href={ACCESS_CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white/80 px-8 py-3.5 text-[15px] font-medium text-black transition-colors hover:bg-white">
+              <a href={ACCESS_CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white/80 px-8 py-3.5 text-[15px] font-medium text-black transition-all duration-300 hover:bg-white hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(0,0,0,0.08)]">
                 Request Contract Access
               </a>
             </div>
 
             <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
               {featureStats.map((item, index) => (
-                <motion.div key={item.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + index * 0.08, duration: 0.5 }} className="rounded-[28px] border border-black/8 bg-white/80 p-5 shadow-[0_18px_50px_rgba(0,0,0,0.05)] backdrop-blur">
+                <motion.div key={item.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4 }} transition={{ delay: 0.15 + index * 0.08, duration: 0.5 }} className="rounded-[28px] border border-black/8 bg-white/80 p-5 shadow-[0_18px_50px_rgba(0,0,0,0.05)] backdrop-blur">
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/45">{item.label}</p>
                   <h3 className="mt-2 font-display text-2xl text-black">{item.value}</h3>
                   <p className="mt-2 text-sm leading-6 text-black/55">{item.note}</p>
@@ -232,11 +232,11 @@ export default function LandingPage() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, scale: 0.96, y: 24 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.7, ease: 'easeOut', delay: 0.12 }} className="relative">
-            <div className="relative rounded-[36px] border border-white/70 bg-[#111111] p-4 shadow-[0_35px_120px_rgba(0,0,0,0.22)] sm:p-5">
+            <div className="relative rounded-[30px] sm:rounded-[36px] border border-white/70 bg-[#111111] p-3 sm:p-5 shadow-[0_35px_120px_rgba(0,0,0,0.22)]">
               <div className="overflow-hidden rounded-[30px]">
-                <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&q=80&w=1400" alt="Premium event crowd" className="h-[520px] w-full object-cover sm:h-[620px]" />
+                <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&q=80&w=1400" alt="Premium event crowd" className="h-[420px] w-full object-cover sm:h-[620px]" />
               </div>
-              <div className="absolute inset-x-4 bottom-4 rounded-[28px] border border-white/10 bg-black/65 p-5 text-white backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:p-6">
+              <div className="absolute inset-x-3 bottom-3 rounded-[24px] border border-white/10 bg-black/65 p-4 text-white backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:rounded-[28px] sm:p-6">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-[0.26em] text-white/55">Live event stack</p>
@@ -246,7 +246,7 @@ export default function LandingPage() {
                     Browser-first check-in
                   </div>
                 </div>
-                <div className="mt-5 grid grid-cols-3 gap-3 text-xs sm:text-sm">
+                <div className="mt-5 grid grid-cols-1 gap-3 text-xs sm:grid-cols-3 sm:text-sm">
                   <div className="rounded-2xl bg-white/10 p-3">
                     <p className="text-white/55">Access</p>
                     <p className="mt-1 font-semibold">Contract-ready</p>
@@ -319,7 +319,7 @@ export default function LandingPage() {
 
             <div className="grid gap-6">
               {features.map((feature, index) => (
-                <motion.div key={feature.title} {...fadeUp} transition={{ ...fadeUp.transition, delay: index * 0.06 }} className="rounded-[32px] border border-black/8 bg-white/82 p-6 shadow-[0_18px_60px_rgba(0,0,0,0.06)] backdrop-blur sm:p-7">
+                <motion.div key={feature.title} {...fadeUp} whileHover={{ y: -6, scale: 1.01 }} transition={{ ...fadeUp.transition, delay: index * 0.06 }} className="rounded-[32px] border border-black/8 bg-white/82 p-6 shadow-[0_18px_60px_rgba(0,0,0,0.06)] backdrop-blur sm:p-7">
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
                     <span className="material-symbols-outlined">{feature.icon}</span>
                   </div>
@@ -348,7 +348,7 @@ export default function LandingPage() {
 
           <div className="grid gap-6 lg:grid-cols-3">
             {showcaseCards.map((card, index) => (
-              <motion.div key={card.title} {...fadeUp} transition={{ ...fadeUp.transition, delay: index * 0.08 }} className="group overflow-hidden rounded-[36px] border border-black/8 bg-white shadow-[0_18px_70px_rgba(0,0,0,0.07)]">
+              <motion.div key={card.title} {...fadeUp} whileHover={{ y: -6 }} transition={{ ...fadeUp.transition, delay: index * 0.08 }} className="group overflow-hidden rounded-[36px] border border-black/8 bg-white shadow-[0_18px_70px_rgba(0,0,0,0.07)]">
                 <div className="relative overflow-hidden">
                   <img src={card.image} alt={card.title} className="h-[360px] w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
@@ -466,7 +466,7 @@ export default function LandingPage() {
       </section>
 
       <section className="px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <motion.div {...fadeUp} className="mx-auto max-w-7xl rounded-[40px] border border-black/8 bg-white px-7 py-10 shadow-[0_18px_80px_rgba(0,0,0,0.06)] sm:px-10 sm:py-12 lg:flex lg:items-center lg:justify-between">
+        <motion.div {...fadeUp} className="mx-auto max-w-7xl rounded-[32px] sm:rounded-[40px] border border-black/8 bg-white px-6 py-8 shadow-[0_18px_80px_rgba(0,0,0,0.06)] sm:px-10 sm:py-12 lg:flex lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-black/45">Final push</p>
             <h2 className="mt-4 font-display text-4xl leading-tight text-black sm:text-5xl">Make the first impression match the standard you want guests to feel.</h2>
