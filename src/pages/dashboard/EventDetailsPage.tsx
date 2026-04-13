@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { QRCodeSVG } from 'qrcode.react';
@@ -48,6 +49,9 @@ export default function EventDetailsPage() {
   const [inviteRole, setInviteRole] = React.useState('checkin_staff');
   const [staffRows, setStaffRows] = React.useState<any[]>([]);
   const [inviteRows, setInviteRows] = React.useState<any[]>([]);
+  const [coverPreview, setCoverPreview] = React.useState<string | null>(null);
+  const [coverFile, setCoverFile] = React.useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (event) {
@@ -62,8 +66,19 @@ export default function EventDetailsPage() {
         theme_color: event.theme_color ?? '#18181B',
         typography_preset: event.typography_preset ?? 'modern',
       });
+      setCoverPreview(event.cover_image_url ?? null);
+      setCoverFile(null);
     }
   }, [event]);
+
+  const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCoverFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setCoverPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
 
   React.useEffect(() => {
@@ -127,6 +142,20 @@ export default function EventDetailsPage() {
   const publicUrl = new URL(`/e/${event.id}`, window.location.origin).toString();
 
   const handleSaveEdit = async () => {
+    let coverImageUrl = event.cover_image_url ?? null;
+
+    if (coverFile && user) {
+      const ext = coverFile.name.split('.').pop() || 'jpg';
+      const filePath = `${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from('event-media').upload(filePath, coverFile, {
+        upsert: true,
+        contentType: coverFile.type,
+      });
+      if (uploadError) return pushToast(uploadError.message, 'error');
+      const { data } = supabase.storage.from('event-media').getPublicUrl(filePath);
+      coverImageUrl = data.publicUrl;
+    }
+
     const { error } = await supabase.from('events').update({
       title: editData.title,
       starts_at: new Date(editData.date).toISOString(),
@@ -137,6 +166,7 @@ export default function EventDetailsPage() {
       template_id: editData.template_id,
       theme_color: editData.theme_color,
       typography_preset: editData.typography_preset,
+      cover_image_url: coverImageUrl,
     }).eq('id', event.id).eq('owner_id', user?.id);
     if (error) return pushToast(error.message, 'error');
     setIsEditing(false);
@@ -295,6 +325,18 @@ export default function EventDetailsPage() {
                   <Input value={editData.location} onValueChange={(v) => setEditData({ ...editData, location: v })} variant="bordered" label="Location" />
                   <Textarea value={editData.description} onValueChange={(v) => setEditData({ ...editData, description: v })} variant="bordered" minRows={4} label="Description" />
 
+                  <div className="space-y-4">
+                    <label className="text-sm font-semibold text-black">Cover Image</label>
+                    <div className="border-2 border-dashed border-gray-200 rounded-[24px] p-6 bg-gray-50/80">
+                      {coverPreview ? <img src={coverPreview} alt="Cover preview" className="w-full h-56 object-cover rounded-2xl mb-4" /> : <div className="h-56 rounded-2xl bg-white border border-gray-100 flex items-center justify-center mb-4"><span className="material-symbols-outlined text-5xl text-gray-300">image</span></div>}
+                      <div className="flex flex-wrap gap-3">
+                        <Button type="button" variant="bordered" className="rounded-full font-medium" onPress={() => fileInputRef.current?.click()}>Upload Cover</Button>
+                        {coverPreview && <Button type="button" variant="light" className="rounded-full font-medium" onPress={() => { setCoverFile(null); setCoverPreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>Remove</Button>}
+                      </div>
+                      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleCoverSelect} className="hidden" />
+                    </div>
+                  </div>
+
                   <div className="flex flex-col xl:flex-row gap-6 xl:gap-12">
                     <div className="xl:w-1/2 space-y-6">
                       <div>
@@ -339,7 +381,7 @@ export default function EventDetailsPage() {
                       <div className="w-full max-w-[260px] rounded-[2.2rem] shadow-2xl border-[7px] border-gray-900 overflow-hidden flex flex-col bg-white" style={{ aspectRatio: '9/19' }}>
                         <div className="bg-gray-900 flex justify-center pt-2 pb-1 flex-shrink-0"><div className="bg-black w-20 h-4 rounded-full"></div></div>
                         <div className="relative flex-shrink-0 flex items-end justify-center overflow-hidden" style={{ backgroundColor: activeTemplate?.color || editData.theme_color, height: '32%' }}>
-                          <div className="absolute inset-0 flex items-center justify-center" style={{ opacity: 0.18 }}><span className="material-symbols-outlined text-white" style={{ fontSize: '36px' }}>{activeTemplate?.icon}</span></div>
+                          {coverPreview ? <img src={coverPreview} alt="Cover preview" className="absolute inset-0 w-full h-full object-cover" /> : <div className="absolute inset-0 flex items-center justify-center" style={{ opacity: 0.18 }}><span className="material-symbols-outlined text-white" style={{ fontSize: '36px' }}>{activeTemplate?.icon}</span></div>}<div className="absolute inset-0 bg-black/20"></div>
                           <div className="relative z-10 text-center px-3 pb-2 w-full">
                             <h4 className="text-white font-bold leading-tight mb-1" style={{ fontSize: '11px', textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>{editData.title || 'Your Event Title'}</h4>
                             <p className="font-bold" style={{ color: '#fff', fontSize: '9px', opacity: 0.9, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>{editData.date ? new Date(editData.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Your Event Date'}</p>
