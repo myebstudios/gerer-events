@@ -4,12 +4,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { LogOut, Calendar, Plus, QrCode, Settings } from 'lucide-react';
 import { Button } from '@heroui/react';
+import { fetchDashboardProfile } from '../lib/dashboardProfile';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
@@ -22,6 +24,19 @@ export default function DashboardLayout() {
 
     setLoading(false);
   }, [navigate, user, authLoading]);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user) return;
+      try {
+        const result = await fetchDashboardProfile(user.id);
+        setProfile(result);
+      } catch (error) {
+        console.error('Failed to load dashboard profile', error);
+      }
+    };
+    void loadProfile();
+  }, [user]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -91,6 +106,12 @@ export default function DashboardLayout() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-black truncate">{displayName}</p>
               <p className="text-xs text-gray-500 truncate">{user?.email ?? ''}</p>
+              {(profile?.access_tier || profile?.role === 'admin') && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-600">{profile?.access_tier || 'free'}</span>
+                  {profile?.role === 'admin' && <span className="inline-flex rounded-full bg-black px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white">admin</span>}
+                </div>
+              )}
             </div>
           </div>
           <Button

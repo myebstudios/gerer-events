@@ -214,7 +214,11 @@ export default function CheckInPage() {
                 <div key={guest.id} className="flex items-center justify-between gap-3 p-4 border border-border rounded-xl hover:border-primary/30 transition-all bg-background/50">
                   <div className="min-w-0">
                     <p className="font-semibold text-text-main truncate">{guest.full_name}</p>
-                    <p className="text-xs text-text-muted mt-1 truncate">{guest.attendance_status} {guest.plus_ones && guest.plus_ones > 0 ? `• +${guest.plus_ones} Guests` : ''}</p>
+                    <p className="text-xs text-text-muted mt-1 truncate">{guest.email || 'No email'}{guest.plus_ones && guest.plus_ones > 0 ? ` • +${guest.plus_ones} guests` : ''}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <span className="inline-flex rounded-full bg-background px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted border border-border">{guest.attendance_status || 'maybe'}</span>
+                      {guest.checked_in_at && <span className="inline-flex rounded-full bg-primary-light px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">{new Date(guest.checked_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
+                    </div>
                   </div>
                   <Button
                     isLoading={busyGuestId === guest.id}

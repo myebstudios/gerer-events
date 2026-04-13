@@ -115,6 +115,11 @@ export default function PublicEventPage() {
             <div><span className="material-symbols-outlined text-4xl mb-4" style={{ color: themeColor, opacity: 0.8 }}>location_on</span><h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">Where</h3><p className="text-xl font-semibold text-gray-900 mb-1">{event.location}</p></div>
           </div>
           {event.description && <div className="mb-12 max-w-2xl mx-auto"><div className="h-px w-24 mx-auto mb-8" style={{ backgroundColor: themeColor, opacity: 0.25 }}></div><p className="leading-relaxed text-lg text-gray-600">{event.description}</p><div className="h-px w-24 mx-auto mt-8" style={{ backgroundColor: themeColor, opacity: 0.25 }}></div></div>}
+          <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
+            <span className="rounded-full bg-gray-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-gray-600">{event.status}</span>
+            <span className="rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em]" style={{ backgroundColor: `${themeColor}15`, color: themeColor }}>Hosted with Gerer Events</span>
+          </div>
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12">
             <Link to={`/e/${event.id}/rsvp`} className="transition-all px-10 py-4 font-semibold w-full sm:w-auto text-center rounded-full shadow-lg hover:opacity-90" style={{ backgroundColor: themeColor, color: accentText }}>RSVP Now</Link>
             <Link to={`/e/${event.id}/upload`} className="transition-all px-10 py-4 font-semibold w-full sm:w-auto text-center rounded-full border-2 hover:opacity-80" style={{ borderColor: themeColor, color: themeColor }}>Upload Memories</Link>

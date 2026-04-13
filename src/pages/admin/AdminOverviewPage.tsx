@@ -113,6 +113,15 @@ export default function AdminOverviewPage() {
               )) : <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">No admin actions logged yet.</div>}
             </div>
           </section>
+
+          <section className="rounded-[32px] border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="font-display text-2xl text-black">Audit recommendations</h2>
+            <div className="mt-4 space-y-3 text-sm text-gray-600">
+              <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">Review any account still on <span className="font-semibold text-black">pending contract</span> before they hit event creation limits unexpectedly.</div>
+              <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">Check recently set events to make sure <span className="font-semibold text-black">draft / published / live</span> states match reality.</div>
+              <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">Use admin logs as the first stop when something changes and nobody remembers who touched it.</div>
+            </div>
+          </section>
         </div>
       </div>
     </div>
