@@ -30,7 +30,7 @@ export default function EventsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
           <h1 className="font-display text-3xl md:text-4xl text-black mb-2 font-medium tracking-tight">Dashboard</h1>
-          <p className="text-gray-500 text-[15px]">Welcome back. Here's an overview of your events.</p>
+          <p className="text-gray-500 text-[15px]">Welcome back. Here is an overview of events you own or collaborate on.</p>
         </div>
         <Button as={Link as any} to="/dashboard/events/new" className="bg-[#18181B] text-white hover:bg-[#27272A] text-[15px] font-medium rounded-full px-6 py-5 shadow-sm transition-all" startContent={<span className="material-symbols-outlined text-lg">add</span>}>Create Event</Button>
       </div>
@@ -59,7 +59,7 @@ export default function EventsPage() {
         <div className="bg-white border-2 border-dashed border-gray-200 rounded-[32px] p-12 text-center shadow-sm">
           <span className="material-symbols-outlined text-4xl text-gray-300 mb-4">calendar_month</span>
           <h3 className="font-display text-xl text-black mb-2 font-medium">No events found</h3>
-          <p className="text-gray-500 mb-6 text-[15px]">You haven't created any events yet.</p>
+          <p className="text-gray-500 mb-6 text-[15px]">You have no owned or shared events yet.</p>
           <Button as={Link as any} to="/dashboard/events/new" className="bg-[#18181B] text-white hover:bg-[#27272A] font-medium rounded-full px-6 py-5">Create Your First Event</Button>
         </div>
       ) : (
@@ -75,8 +75,9 @@ export default function EventsPage() {
                       <span className="material-symbols-outlined text-4xl text-gray-300">image</span>
                     </div>
                   )}
-                  <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-black rounded-full shadow-sm">
-                    {event.status}
+                  <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
+                    <span className="bg-white/95 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-black rounded-full shadow-sm">{event.status}</span>
+                    {event.owner_id !== undefined && event.role && <span className="bg-black/75 text-white px-3 py-1 text-[11px] font-semibold rounded-full shadow-sm capitalize">{String(event.role).replace('_', ' ')}</span>}
                   </div>
                 </div>
                 <div className="p-6">

@@ -317,7 +317,7 @@ export default function LandingPage() {
                 <h3 className="font-display text-xl text-black font-semibold">Smart Check-in</h3>
                 <span className="material-symbols-outlined text-black">arrow_forward</span>
               </div>
-              <p className="text-sm text-gray-400 leading-relaxed font-normal px-1 pr-6">Breeze through the door. Scan QR codes instantly with our built-in check-in scanner. Syncs across all devices in real-time.</p>
+              <p className="text-sm text-gray-400 leading-relaxed font-normal px-1 pr-6">Breeze through the door. Scan guest QR codes with any phone camera or QR app, open the secure browser link, and check guests in with role-based access.</p>
             </div>
 
             {/* Large Card 3 */}
@@ -375,9 +375,9 @@ export default function LandingPage() {
                 <li className="flex items-center gap-2"><span className="material-symbols-outlined text-green-400 text-lg">check_circle</span> Premium template</li>
                 <li className="flex items-center gap-2"><span className="material-symbols-outlined text-green-400 text-lg">check_circle</span> No watermark</li>
                 <li className="flex items-center gap-2"><span className="material-symbols-outlined text-green-400 text-lg">check_circle</span> Higher RSVP limits</li>
-                <li className="flex items-center gap-2"><span className="material-symbols-outlined text-green-400 text-lg">check_circle</span> Superior check-in</li>
+                <li className="flex items-center gap-2"><span className="material-symbols-outlined text-green-400 text-lg">check_circle</span> Role-based QR check-in</li>
               </ul>
-              <Button as={Link as any} to="/login" className="w-full bg-white text-black hover:bg-gray-200 rounded-full font-medium">Buy Pass</Button>
+              <Button as={Link as any} to="/login" className="w-full bg-white text-black hover:bg-gray-200 rounded-full font-medium">Request Event Pass</Button>
             </div>
             {/* Studio */}
             <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-md transition-all">
@@ -392,7 +392,7 @@ export default function LandingPage() {
                 <li className="flex items-center gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Full data exports</li>
                 <li className="flex items-center gap-2"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> For recurring planners</li>
               </ul>
-              <Button as={Link as any} to="/login" className="w-full bg-gray-100 text-black hover:bg-gray-200 rounded-full font-medium">Subscribe</Button>
+              <Button as={Link as any} to="/login" className="w-full bg-gray-100 text-black hover:bg-gray-200 rounded-full font-medium">Request Studio Access</Button>
             </div>
             {/* Agency */}
             <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-md transition-all">

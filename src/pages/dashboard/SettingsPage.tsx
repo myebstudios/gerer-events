@@ -96,7 +96,7 @@ export default function SettingsPage() {
             <Card className="bg-surface rounded-2xl border border-border shadow-[var(--shadow-card)]">
                 <CardBody className="p-8">
                     <h2 className="font-display text-xl text-text-main mb-2">Plans & Billing</h2>
-                    <p className="text-text-muted text-sm mb-6">Choose the plan that fits your needs.</p>
+                    <p className="text-text-muted text-sm mb-6">Choose the access level that fits your needs. Direct in-app billing is not active yet.</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {plans.map((plan) => (
@@ -123,9 +123,7 @@ export default function SettingsPage() {
                                     ))}
                                 </ul>
                                 {!plan.current && (
-                                    <Button size="sm" variant="bordered" className="w-full mt-4 font-semibold rounded-full text-xs">
-                                        Upgrade
-                                    </Button>
+                                    <a href={ACCESS_CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex w-full mt-4 items-center justify-center rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-background transition-colors">Request Access</a>
                                 )}
                             </div>
                         ))}
