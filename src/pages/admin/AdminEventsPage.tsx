@@ -17,7 +17,7 @@ export default function AdminEventsPage() {
       try {
         const { data, error } = await supabase
           .from('events')
-          .select('id, title, status, location, starts_at, owner_id, created_at')
+          .select('id, title, status, location, starts_at, owner_id, upload_enabled, moderation_mode, created_at')
           .order('created_at', { ascending: false })
           .limit(100);
         if (error) throw error;
@@ -88,7 +88,13 @@ export default function AdminEventsPage() {
                         {['draft', 'published', 'live', 'ended'].map((status) => <option key={status} value={status}>{status}</option>)}
                       </select>
                     </td>
-                    <td className="px-6 py-4 text-gray-500">{event.location}</td>
+                    <td className="px-6 py-4 text-gray-500">
+                      <div>{event.location}</div>
+                      <div className="mt-1 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.14em]">
+                        <span className="rounded-full bg-gray-100 px-2 py-1 text-gray-600">{event.upload_enabled ? 'uploads on' : 'uploads off'}</span>
+                        <span className="rounded-full bg-gray-100 px-2 py-1 text-gray-600">{event.moderation_mode || 'auto-approve'}</span>
+                      </div>
+                    </td>
                     <td className="px-6 py-4 text-gray-500">{event.starts_at ? new Date(event.starts_at).toLocaleString() : '—'}</td>
                     <td className="px-6 py-4"><Link to={`/dashboard/events/${event.id}`} className="text-sm font-semibold text-black hover:text-gray-600">Open event</Link></td>
                   </tr>

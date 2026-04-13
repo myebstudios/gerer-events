@@ -206,6 +206,7 @@ export default function EventDetailsPage() {
   };
 
   const handleDeleteMedia = async (mediaId: string) => {
+    if (!canModerateMediaWithRole(eventRole)) return pushToast('You do not have permission to delete media for this event.', 'error');
     const { error } = await supabase.from('media_uploads').delete().eq('id', mediaId);
     if (error) return pushToast(error.message, 'error');
     refresh();
