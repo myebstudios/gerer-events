@@ -21,6 +21,11 @@ const QuickQRPage = React.lazy(() => import('./pages/dashboard/QuickQRPage'));
 const SettingsPage = React.lazy(() => import('./pages/dashboard/SettingsPage'));
 const QrCheckInPage = React.lazy(() => import('./pages/QrCheckInPage'));
 const AcceptInvitePage = React.lazy(() => import('./pages/AcceptInvitePage'));
+const AdminLayout = React.lazy(() => import('./layouts/AdminLayout'));
+const AdminOverviewPage = React.lazy(() => import('./pages/admin/AdminOverviewPage'));
+const AdminUsersPage = React.lazy(() => import('./pages/admin/AdminUsersPage'));
+const AdminEventsPage = React.lazy(() => import('./pages/admin/AdminEventsPage'));
+const AdminContractsPage = React.lazy(() => import('./pages/admin/AdminContractsPage'));
 
 function Loader() {
   return <div className="min-h-screen flex items-center justify-center text-text-muted font-medium bg-background">Loading...</div>;
@@ -43,6 +48,13 @@ export default function App() {
             <Route path="events/:id/checkin" element={<CheckInPage />} />
             <Route path="tools/quick-qr" element={<QuickQRPage />} />
             <Route path="settings" element={<SettingsPage />} />
+          </Route>
+
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminOverviewPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="events" element={<AdminEventsPage />} />
+            <Route path="contracts" element={<AdminContractsPage />} />
           </Route>
 
           <Route path="/e/:id" element={<PublicEventPage />} />
