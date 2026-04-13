@@ -22,6 +22,19 @@ export default function EventsPage() {
   const { pushToast } = useToast();
   const { events, loading, error } = useSupabaseEvents();
   const { stats } = useSupabaseDashboardStats();
+  const [canCreateMore, setCanCreateMore] = React.useState(true);
+
+  React.useEffect(() => {
+    const check = async () => {
+      if (!user) return;
+      try {
+        setCanCreateMore(await canCreateAnotherEvent(user));
+      } catch (error) {
+        console.error('Failed to check create limit', error);
+      }
+    };
+    void check();
+  }, [user, events?.length]);
 
   const handleCreateEvent = async () => {
     if (!user) return navigate('/login');
@@ -79,7 +92,7 @@ export default function EventsPage() {
           <span className="material-symbols-outlined text-4xl text-gray-300 mb-4">calendar_month</span>
           <h3 className="font-display text-xl text-black mb-2 font-medium">No events found</h3>
           <p className="text-gray-500 mb-6 text-[15px]">You have no owned or shared events yet.</p>
-          <Button onPress={handleCreateEvent} className="bg-[#18181B] text-white hover:bg-[#27272A] font-medium rounded-full px-6 py-5">{canCreateUnlimitedEvents(user) || events.length === 0 ? 'Create Your First Event' : 'Request Contract Access'}</Button>
+          <Button onPress={handleCreateEvent} className="bg-[#18181B] text-white hover:bg-[#27272A] font-medium rounded-full px-6 py-5">{canCreateMore || events.length === 0 ? 'Create Your First Event' : 'Request Contract Access'}</Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

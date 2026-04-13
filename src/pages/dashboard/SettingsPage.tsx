@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { Button, Input, Card, CardBody } from '@heroui/react';
 import { useToast } from '../../contexts/ToastContext';
 import { ACCESS_CONTACT } from '../../lib/access';
+import { fetchCurrentUserProfile } from '../../lib/profile';
 
 export default function SettingsPage() {
     const { user } = useAuth();
@@ -12,10 +13,21 @@ export default function SettingsPage() {
     const [name, setName] = useState('');
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [profile, setProfile] = useState<any>(null);
     const { pushToast } = useToast();
 
     React.useEffect(() => {
-        if (user?.user_metadata?.full_name) setName(user.user_metadata.full_name);
+        const loadProfile = async () => {
+            if (!user) return;
+            if (user?.user_metadata?.full_name) setName(user.user_metadata.full_name);
+            try {
+                const result = await fetchCurrentUserProfile(user.id);
+                setProfile(result);
+            } catch (error) {
+                console.error('Failed to load profile', error);
+            }
+        };
+        void loadProfile();
     }, [user]);
 
     const handleSave = async () => {
@@ -138,7 +150,7 @@ export default function SettingsPage() {
                         <p className="text-gray-500 text-sm mt-1">Manual access is enabled while direct in-app payment is not yet active.</p>
                     </div>
                     <span className="inline-flex w-fit px-3 py-1 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-700 capitalize">
-                        {user?.user_metadata?.access_tier || 'free'} / {user?.user_metadata?.contract_status || 'inactive'}
+                        {profile?.access_tier || 'free'} / {profile?.contract_status || 'inactive'}
                     </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

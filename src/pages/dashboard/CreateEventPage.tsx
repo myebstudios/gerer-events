@@ -152,7 +152,7 @@ export default function CreateEventPage() {
         <div className={`flex-1 h-1.5 rounded-full transition-colors duration-500 ${step >= 3 ? 'bg-black' : 'bg-gray-100'}`}></div>
       </div>
 
-      {creationBlocked && !canCreateUnlimitedEvents(user) && (
+      {creationBlocked && (
         <div className="mb-6 rounded-[24px] border border-amber-200 bg-amber-50 p-5 sm:p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>

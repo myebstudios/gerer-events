@@ -36,12 +36,14 @@ export default function AdminContractsPage() {
     void load();
   }, [load]);
 
-  const updateContract = async (profile: any, status: string) => {
+  const updateContract = async (profile: any, status: string, startsAt?: string | null, endsAt?: string | null) => {
     setSavingId(profile.id);
     try {
       const patch = {
         contract_status: status,
         access_tier: accessTierMap[status] || profile.access_tier || 'free',
+        contract_starts_at: startsAt ?? profile.contract_starts_at ?? null,
+        contract_ends_at: endsAt ?? profile.contract_ends_at ?? null,
       };
       const { error } = await supabase.from('profiles').update(patch).eq('id', profile.id);
       if (error) throw error;
@@ -69,7 +71,7 @@ export default function AdminContractsPage() {
         <span className="rounded-full bg-gray-100 px-3 py-1">{profile.access_tier || 'free'}</span>
         <span className="rounded-full bg-black px-3 py-1 text-white">{profile.contract_status || 'inactive'}</span>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 space-y-3">
         <select
           value={profile.contract_status || 'inactive'}
           disabled={savingId === profile.id}
@@ -78,6 +80,22 @@ export default function AdminContractsPage() {
         >
           {contractStatusOptions.map((option) => <option key={option} value={option}>{option}</option>)}
         </select>
+        <input
+          type="datetime-local"
+          defaultValue={profile.contract_starts_at ? new Date(profile.contract_starts_at).toISOString().slice(0,16) : ''}
+          disabled={savingId === profile.id}
+          onBlur={(e) => void updateContract(profile, profile.contract_status || 'inactive', e.target.value ? new Date(e.target.value).toISOString() : null, profile.contract_ends_at || null)}
+          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-black"
+          placeholder="Contract start"
+        />
+        <input
+          type="datetime-local"
+          defaultValue={profile.contract_ends_at ? new Date(profile.contract_ends_at).toISOString().slice(0,16) : ''}
+          disabled={savingId === profile.id}
+          onBlur={(e) => void updateContract(profile, profile.contract_status || 'inactive', profile.contract_starts_at || null, e.target.value ? new Date(e.target.value).toISOString() : null)}
+          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-black"
+          placeholder="Contract end"
+        />
       </div>
     </div>
   );
