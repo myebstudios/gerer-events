@@ -6,6 +6,7 @@ import { useToast } from '../../contexts/ToastContext';
 export default function AdminEventsPage() {
   const { pushToast } = useToast();
   const [loading, setLoading] = React.useState(true);
+  const [savingId, setSavingId] = React.useState<string | null>(null);
   const [events, setEvents] = React.useState<any[]>([]);
 
   React.useEffect(() => {
@@ -26,6 +27,20 @@ export default function AdminEventsPage() {
     };
     void load();
   }, [pushToast]);
+
+  const updateStatus = async (id: string, status: string) => {
+    setSavingId(id);
+    try {
+      const { error } = await supabase.from('events').update({ status }).eq('id', id);
+      if (error) throw error;
+      setEvents((current) => current.map((event) => (event.id === id ? { ...event, status } : event)));
+      pushToast('Event status updated.', 'success');
+    } catch (error: any) {
+      pushToast(error.message || 'Failed to update event status', 'error');
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   return (
     <div className="p-8 lg:p-10">
@@ -57,7 +72,16 @@ export default function AdminEventsPage() {
                       <p className="font-semibold text-black">{event.title}</p>
                       <p className="text-xs text-gray-400 mt-1">{event.id}</p>
                     </td>
-                    <td className="px-6 py-4"><span className="rounded-full bg-black px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">{event.status}</span></td>
+                    <td className="px-6 py-4">
+                      <select
+                        value={event.status}
+                        disabled={savingId === event.id}
+                        onChange={(e) => void updateStatus(event.id, e.target.value)}
+                        className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-black"
+                      >
+                        {['draft', 'published', 'live', 'ended'].map((status) => <option key={status} value={status}>{status}</option>)}
+                      </select>
+                    </td>
                     <td className="px-6 py-4 text-gray-500">{event.location}</td>
                     <td className="px-6 py-4 text-gray-500">{event.starts_at ? new Date(event.starts_at).toLocaleString() : '—'}</td>
                     <td className="px-6 py-4"><Link to={`/dashboard/events/${event.id}`} className="text-sm font-semibold text-black hover:text-gray-600">Open event</Link></td>
