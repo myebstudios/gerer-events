@@ -7,6 +7,7 @@ import { Button, Input, Select, SelectItem, Textarea } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { compressImageFile } from '../../lib/imageUpload';
 
 const safeFormatDate = (dateStr: string, fmt: 'short' | 'long' = 'long', fallback = 'Your Event Date') => {
   if (!dateStr) return fallback;
@@ -45,13 +46,14 @@ export default function CreateEventPage() {
     typographyPreset: 'modern',
   });
 
-  const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setCoverFile(file);
+    const compressed = await compressImageFile(file);
+    setCoverFile(compressed);
     const reader = new FileReader();
     reader.onload = () => setCoverPreview(reader.result as string);
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(compressed);
   };
 
   const currentTemplate = TEMPLATE_CATALOG.find(t => t.id === formData.templateId);

@@ -11,6 +11,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { getEventRole, canManageWithRole, canModerateMediaWithRole, canCheckInWithRole } from '../../lib/eventAccess';
 import { TEMPLATE_CATALOG, EVENT_TYPES, type EventType } from '../../lib/catalog';
+import { compressImageFile } from '../../lib/imageUpload';
 
 const safeFormatDate = (dateStr: string, endDateStr?: string, fmt = 'MMMM d, yyyy', fallback = 'TBD') => {
   try {
@@ -71,13 +72,14 @@ export default function EventDetailsPage() {
     }
   }, [event]);
 
-  const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setCoverFile(file);
+    const compressed = await compressImageFile(file);
+    setCoverFile(compressed);
     const reader = new FileReader();
     reader.onload = () => setCoverPreview(reader.result as string);
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(compressed);
   };
 
 
