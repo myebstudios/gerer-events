@@ -14,6 +14,7 @@ export default function UploadPage() {
   const { pushToast } = useToast();
   const [qrToken, setQrToken] = useState('');
   const [guest, setGuest] = useState<any>(null);
+  const [verifiedToken, setVerifiedToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -39,6 +40,7 @@ export default function UploadPage() {
       if (!data) throw new Error('Invalid QR Token or guest not found.');
       if (!data.checked_in) throw new Error('Only checked-in guests can upload media.');
       setGuest(data);
+      setVerifiedToken(data.qr_token);
       pushToast('Access verified. You can upload now.', 'success');
     } catch (err: any) {
       setError(err.message);
@@ -57,7 +59,8 @@ export default function UploadPage() {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const ext = file.name.split('.').pop() || 'bin';
-        const filePath = `${safeEventId}/${guest.id}/${Date.now()}-${i}.${ext}`;
+        const safeToken = verifiedToken.replace(/[^a-zA-Z0-9_-]/g, '');
+        const filePath = `guest-uploads/${safeEventId}/${guest.id}/${safeToken}/${Date.now()}-${i}.${ext}`;
         const { error: uploadError } = await supabase.storage.from('event-media').upload(filePath, file, { upsert: true, contentType: file.type });
         if (uploadError) throw uploadError;
         const { data } = supabase.storage.from('event-media').getPublicUrl(filePath);
