@@ -26,6 +26,7 @@ const AdminOverviewPage = React.lazy(() => import('./pages/admin/AdminOverviewPa
 const AdminUsersPage = React.lazy(() => import('./pages/admin/AdminUsersPage'));
 const AdminEventsPage = React.lazy(() => import('./pages/admin/AdminEventsPage'));
 const AdminContractsPage = React.lazy(() => import('./pages/admin/AdminContractsPage'));
+const AdminAuditPage = React.lazy(() => import('./pages/admin/AdminAuditPage'));
 
 function Loader() {
   return <div className="min-h-screen flex items-center justify-center text-text-muted font-medium bg-background">Loading...</div>;
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="events" element={<AdminEventsPage />} />
             <Route path="contracts" element={<AdminContractsPage />} />
+            <Route path="audit" element={<AdminAuditPage />} />
           </Route>
 
           <Route path="/e/:id" element={<PublicEventPage />} />

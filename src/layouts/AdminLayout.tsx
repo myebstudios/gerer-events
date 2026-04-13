@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, CalendarRange, FileBadge2, Shield, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, CalendarRange, FileBadge2, Shield, LogOut, ScrollText } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -45,6 +45,7 @@ export default function AdminLayout() {
     { to: '/admin/users', label: 'Users', icon: <Users className="h-4 w-4" /> },
     { to: '/admin/events', label: 'Events', icon: <CalendarRange className="h-4 w-4" /> },
     { to: '/admin/contracts', label: 'Contracts', icon: <FileBadge2 className="h-4 w-4" /> },
+    { to: '/admin/audit', label: 'Audit Log', icon: <ScrollText className="h-4 w-4" /> },
   ];
 
   const isActive = (path: string, exact?: boolean) => exact ? location.pathname === path : location.pathname.startsWith(path);

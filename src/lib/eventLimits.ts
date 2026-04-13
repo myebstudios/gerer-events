@@ -1,14 +1,13 @@
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { fetchCurrentUserProfile } from './profile';
+import { isContractCurrentlyActive } from './contractAccess';
 
 export async function canCreateUnlimitedEvents(user: User | null | undefined) {
   if (!user) return false;
   const profile = await fetchCurrentUserProfile(user.id);
   if (!profile) return false;
-  const tier = profile.access_tier || 'free';
-  const contractStatus = profile.contract_status || 'inactive';
-  return tier !== 'free' && contractStatus == 'active_contract';
+  return isContractCurrentlyActive(profile);
 }
 
 export async function getOwnedEventCount(userId: string) {

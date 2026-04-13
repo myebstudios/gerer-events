@@ -6,6 +6,7 @@ import { Button, Input, Card, CardBody } from '@heroui/react';
 import { useToast } from '../../contexts/ToastContext';
 import { ACCESS_CONTACT } from '../../lib/access';
 import { fetchCurrentUserProfile } from '../../lib/profile';
+import { isContractCurrentlyActive } from '../../lib/contractAccess';
 
 export default function SettingsPage() {
     const { user } = useAuth();
@@ -152,6 +153,11 @@ export default function SettingsPage() {
                     <span className="inline-flex w-fit px-3 py-1 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-700 capitalize">
                         {profile?.access_tier || 'free'} / {profile?.contract_status || 'inactive'}
                     </span>
+                </div>
+                <div className="mb-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-600">
+                    <p><span className="font-semibold text-black">Contract active now:</span> {isContractCurrentlyActive(profile) ? 'Yes' : 'No'}</p>
+                    {profile?.contract_starts_at && <p className="mt-1"><span className="font-semibold text-black">Starts:</span> {new Date(profile.contract_starts_at).toLocaleString()}</p>}
+                    {profile?.contract_ends_at && <p className="mt-1"><span className="font-semibold text-black">Ends:</span> {new Date(profile.contract_ends_at).toLocaleString()}</p>}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <a href={ACCESS_CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full bg-[#18181B] text-white px-5 py-3 text-sm font-medium hover:bg-[#27272A] transition-colors">
