@@ -1,8 +1,12 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Card, CardBody, Button } from '@heroui/react';
 import { useSupabaseEvents, useSupabaseDashboardStats } from '../../hooks/useSupabaseEvents';
+import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
+import { canCreateAnotherEvent, canCreateUnlimitedEvents } from '../../lib/eventLimits';
+import { ACCESS_CONTACT } from '../../lib/access';
 
 const safeFormatDate = (dateStr: string, fmt: string, fallback = 'TBD') => {
   try {
@@ -13,8 +17,23 @@ const safeFormatDate = (dateStr: string, fmt: string, fallback = 'TBD') => {
 };
 
 export default function EventsPage() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { pushToast } = useToast();
   const { events, loading, error } = useSupabaseEvents();
   const { stats } = useSupabaseDashboardStats();
+
+  const handleCreateEvent = async () => {
+    if (!user) return navigate('/login');
+    try {
+      const allowed = await canCreateAnotherEvent(user);
+      if (allowed) return navigate('/dashboard/events/new');
+      pushToast('Free accounts can create one event. Contact us for contract access to create more.', 'warning');
+      window.open(ACCESS_CONTACT.whatsapp, '_blank', 'noopener,noreferrer');
+    } catch (error: any) {
+      pushToast(error?.message || 'Unable to verify your event limit right now.', 'error');
+    }
+  };
 
   if (loading || !events) return <div className="p-8 text-text-muted font-medium">Loading events...</div>;
   if (error) return <div className="p-8 text-red-500 font-medium">{error}</div>;
@@ -32,7 +51,7 @@ export default function EventsPage() {
           <h1 className="font-display text-3xl md:text-4xl text-black mb-2 font-medium tracking-tight">Dashboard</h1>
           <p className="text-gray-500 text-[15px]">Welcome back. Here is an overview of events you own or collaborate on.</p>
         </div>
-        <Button as={Link as any} to="/dashboard/events/new" className="bg-[#18181B] text-white hover:bg-[#27272A] text-[15px] font-medium rounded-full px-6 py-5 shadow-sm transition-all" startContent={<span className="material-symbols-outlined text-lg">add</span>}>Create Event</Button>
+        <Button onPress={handleCreateEvent} className="bg-[#18181B] text-white hover:bg-[#27272A] text-[15px] font-medium rounded-full px-6 py-5 shadow-sm transition-all" startContent={<span className="material-symbols-outlined text-lg">add</span>}>Create Event</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -60,7 +79,7 @@ export default function EventsPage() {
           <span className="material-symbols-outlined text-4xl text-gray-300 mb-4">calendar_month</span>
           <h3 className="font-display text-xl text-black mb-2 font-medium">No events found</h3>
           <p className="text-gray-500 mb-6 text-[15px]">You have no owned or shared events yet.</p>
-          <Button as={Link as any} to="/dashboard/events/new" className="bg-[#18181B] text-white hover:bg-[#27272A] font-medium rounded-full px-6 py-5">Create Your First Event</Button>
+          <Button onPress={handleCreateEvent} className="bg-[#18181B] text-white hover:bg-[#27272A] font-medium rounded-full px-6 py-5">{canCreateUnlimitedEvents(user) || events.length === 0 ? 'Create Your First Event' : 'Request Contract Access'}</Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -8,6 +8,8 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { compressImageFile } from '../../lib/imageUpload';
+import { canCreateAnotherEvent, canCreateUnlimitedEvents } from '../../lib/eventLimits';
+import { ACCESS_CONTACT } from '../../lib/access';
 
 const safeFormatDate = (dateStr: string, fmt: 'short' | 'long' = 'long', fallback = 'Your Event Date') => {
   if (!dateStr) return fallback;
@@ -31,6 +33,7 @@ export default function CreateEventPage() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [creationBlocked, setCreationBlocked] = useState(false);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,10 +61,29 @@ export default function CreateEventPage() {
 
   const currentTemplate = TEMPLATE_CATALOG.find(t => t.id === formData.templateId);
 
+  React.useEffect(() => {
+    const checkLimit = async () => {
+      if (!user) return;
+      try {
+        const allowed = await canCreateAnotherEvent(user);
+        setCreationBlocked(!allowed);
+      } catch (error) {
+        console.error('Failed to check event creation limit', error);
+      }
+    };
+    void checkLimit();
+  }, [user]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 1) return setStep(2);
     if (step === 2) return setStep(3);
+
+    if (!user) return pushToast('Not authenticated', 'error');
+    if (!(await canCreateAnotherEvent(user))) {
+      setCreationBlocked(true);
+      return pushToast('Free accounts are limited to one event. Contact us for contract access to create more.', 'warning');
+    }
 
     setLoading(true);
     try {
@@ -130,9 +152,22 @@ export default function CreateEventPage() {
         <div className={`flex-1 h-1.5 rounded-full transition-colors duration-500 ${step >= 3 ? 'bg-black' : 'bg-gray-100'}`}></div>
       </div>
 
+      {creationBlocked && !canCreateUnlimitedEvents(user) && (
+        <div className="mb-6 rounded-[24px] border border-amber-200 bg-amber-50 p-5 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-display text-xl text-amber-950 font-semibold">Free plan limit reached</h2>
+              <p className="text-sm text-amber-900/80 mt-1">Free users can create one event. Contact Fildine for contract access to create more events.</p>
+            </div>
+            <a href={ACCESS_CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full bg-[#18181B] text-white px-5 py-3 text-sm font-medium hover:bg-[#27272A] transition-colors">
+              Request Contract Access
+            </a>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-[28px] sm:rounded-[32px] shadow-sm border border-gray-100 p-4 sm:p-6 md:p-12 flex-1 relative overflow-hidden">
-        <form onSubmit={handleSubmit} className="h-full flex flex-col">
-          <AnimatePresence mode="wait">
+        <form onSubmit={handleSubmit} className={`h-full flex flex-col ${creationBlocked ? 'opacity-60 pointer-events-none' : ''}`}>          <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-8 flex-1">
                 <div>
