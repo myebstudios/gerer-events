@@ -8,7 +8,7 @@ import { supabase } from '../../lib/supabase';
 import { useSupabaseEventDetails } from '../../hooks/useSupabaseEventDetails';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
-import { getEventRole, canManageWithRole, canModerateMediaWithRole } from '../../lib/eventAccess';
+import { getEventRole, canManageWithRole, canModerateMediaWithRole, canCheckInWithRole } from '../../lib/eventAccess';
 
 const safeFormatDate = (dateStr: string, endDateStr?: string, fmt = 'MMMM d, yyyy', fallback = 'TBD') => {
   try {
@@ -180,6 +180,9 @@ export default function EventDetailsPage() {
   };
 
   const filteredMedia = media.filter((m: any) => mediaFilter === 'all' || m.status === mediaFilter);
+  const canManageEvent = canManageWithRole(eventRole);
+  const canCheckInEvent = canCheckInWithRole(eventRole);
+  const canModerateMedia = canModerateMediaWithRole(eventRole);
   const statusColors: Record<string, string> = {
     draft: 'bg-text-subtle/10 text-text-subtle',
     published: 'bg-primary/10 text-primary',
@@ -197,7 +200,7 @@ export default function EventDetailsPage() {
     { id: 'overview', label: 'Overview' },
     { id: 'guests', label: `Guests (${guests.length})` },
     { id: 'media', label: `Media (${media.length})` },
-    { id: 'collaboration', label: 'Collaboration' },
+    ...(canManageEvent ? [{ id: 'collaboration', label: 'Collaboration' }] : []),
   ];
 
   return (
@@ -217,11 +220,11 @@ export default function EventDetailsPage() {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          {event.status === 'draft' && <Button onPress={() => handleStatusChange('published')} color="primary" variant="bordered" className="text-sm font-semibold rounded-full">Publish</Button>}
-          {event.status === 'published' && <Button onPress={() => handleStatusChange('live')} className="text-sm font-semibold rounded-full bg-emerald text-white">Go Live</Button>}
-          {event.status === 'live' && <Button onPress={() => handleStatusChange('ended')} color="danger" variant="bordered" className="text-sm font-semibold rounded-full">End Event</Button>}
+          {canManageEvent && event.status === 'draft' && <Button onPress={() => handleStatusChange('published')} color="primary" variant="bordered" className="text-sm font-semibold rounded-full">Publish</Button>}
+          {canManageEvent && event.status === 'published' && <Button onPress={() => handleStatusChange('live')} className="text-sm font-semibold rounded-full bg-emerald text-white">Go Live</Button>}
+          {canManageEvent && event.status === 'live' && <Button onPress={() => handleStatusChange('ended')} color="danger" variant="bordered" className="text-sm font-semibold rounded-full">End Event</Button>}
           <Button as="a" href={publicUrl} target="_blank" rel="noopener noreferrer" variant="bordered" className="text-sm font-semibold rounded-full w-full sm:w-auto">View Public Page</Button>
-          <Button as={Link as any} to={`/dashboard/events/${event.id}/checkin`} color="primary" className="text-sm font-semibold rounded-full w-full sm:w-auto">Check-in Desk</Button>
+          {canCheckInEvent && <Button as={Link as any} to={`/dashboard/events/${event.id}/checkin`} color="primary" className="text-sm font-semibold rounded-full w-full sm:w-auto">Check-in Desk</Button>}
         </div>
       </div>
 
@@ -247,7 +250,7 @@ export default function EventDetailsPage() {
           <div className="bg-surface p-4 sm:p-6 lg:p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h3 className="font-display text-2xl text-text-main">Event Details</h3>
-              {!isEditing ? <Button onPress={() => setIsEditing(true)} variant="bordered" size="sm" className="font-semibold rounded-full">Edit</Button> : <div className="flex flex-wrap gap-2"><Button onPress={() => setIsEditing(false)} variant="light" size="sm">Cancel</Button><Button onPress={handleSaveEdit} color="primary" size="sm">Save</Button></div>}
+              {canManageEvent ? (!isEditing ? <Button onPress={() => setIsEditing(true)} variant="bordered" size="sm" className="font-semibold rounded-full">Edit</Button> : <div className="flex flex-wrap gap-2"><Button onPress={() => setIsEditing(false)} variant="light" size="sm">Cancel</Button><Button onPress={handleSaveEdit} color="primary" size="sm">Save</Button></div>) : <span className="text-xs font-semibold uppercase tracking-wider text-text-subtle">View only</span>}
             </div>
             {isEditing ? (
               <div className="space-y-4">
@@ -295,7 +298,7 @@ export default function EventDetailsPage() {
           <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
             <h3 className="font-display text-2xl text-text-main">Guest List</h3>
             <div className="flex flex-wrap gap-3">
-              <Button onPress={handleExportCSV} variant="bordered" size="sm" className="font-semibold rounded-full">Export CSV</Button>
+              {canManageEvent && <Button onPress={handleExportCSV} variant="bordered" size="sm" className="font-semibold rounded-full">Export CSV</Button>}
               <span className="bg-background px-4 py-1.5 rounded-full text-sm font-semibold text-text-muted border border-border whitespace-nowrap">{guests.length} Total</span>
             </div>
           </div>
@@ -310,7 +313,7 @@ export default function EventDetailsPage() {
                     <td className="py-4 px-4"><span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${guest.attendance_status === 'yes' ? 'bg-primary-light text-primary' : guest.attendance_status === 'no' ? 'bg-red-light text-red' : 'bg-accent-light text-amber-700'}`}>{guest.attendance_status}</span></td>
                     <td className="py-4 px-4 text-sm text-text-muted font-medium">{guest.plus_ones}</td>
                     <td className="py-4 px-4">{guest.checked_in ? <span className="material-symbols-outlined text-primary">check_circle</span> : <span className="material-symbols-outlined text-text-subtle/30">cancel</span>}</td>
-                    <td className="py-4 px-4"><button onClick={() => { if (confirm('Remove this guest?')) handleDeleteGuest(guest.id); }} className="text-text-subtle hover:text-red transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button></td>
+                    <td className="py-4 px-4">{canManageEvent ? <button onClick={() => { if (confirm('Remove this guest?')) handleDeleteGuest(guest.id); }} className="text-text-subtle hover:text-red transition-colors"><span className="material-symbols-outlined text-sm">delete</span></button> : <span className="text-text-subtle/30">-</span>}</td>
                   </tr>
                 ))}
                 {guests.length === 0 && <tr><td colSpan={6} className="py-12 text-center text-text-muted font-medium">No guests have RSVP'd yet.</td></tr>}
@@ -407,11 +410,11 @@ export default function EventDetailsPage() {
                   </div>
                   <div className="absolute top-2 left-2 px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-black/70 text-white">{item.status}</div>
                   <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="flex gap-2 justify-end">
+                    {canModerateMedia && <div className="flex gap-2 justify-end">
                       <button onClick={() => handleModerateMedia(item.id, 'featured')} className="bg-white/90 text-black rounded-full px-3 py-1 text-xs font-semibold">Feature</button>
                       <button onClick={() => handleModerateMedia(item.id, item.status === 'approved' ? 'hidden' : 'approved')} className="bg-white/90 text-black rounded-full px-3 py-1 text-xs font-semibold">{item.status === 'approved' ? 'Hide' : 'Approve'}</button>
                       <button onClick={() => handleDeleteMedia(item.id)} className="bg-red-500 text-white rounded-full px-3 py-1 text-xs font-semibold">Delete</button>
-                    </div>
+                    </div>}
                   </div>
                 </div>
               ))}
@@ -420,9 +423,9 @@ export default function EventDetailsPage() {
         </div>
       )}
 
-      <div className="mt-8 flex justify-end">
+      {canManageEvent && <div className="mt-8 flex justify-end">
         <Button color="danger" variant="bordered" onPress={handleDeleteEvent}>Delete Event</Button>
-      </div>
+      </div>}
     </div>
   );
 }
