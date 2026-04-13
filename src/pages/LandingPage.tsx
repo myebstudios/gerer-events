@@ -369,17 +369,17 @@ export default function LandingPage() {
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.94fr_1.06fr]">
           <motion.div {...fadeUp} className="rounded-[40px] border border-black/8 bg-[linear-gradient(180deg,#1a1a1d_0%,#101012_100%)] p-8 text-white shadow-[0_28px_100px_rgba(0,0,0,0.18)] sm:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-white/45">Why it feels different</p>
-            <h2 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">A landing page that now sells the actual product, not vague startup perfume.</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-white/45">Why hosts choose it</p>
+            <h2 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">Everything your guests feel, your team notices, and your event day depends on.</h2>
             <p className="mt-5 max-w-xl text-sm leading-7 text-white/65 sm:text-base">
-              Better imagery, tighter motion, cleaner sections, stronger contrast, and copy that reflects the current QR, contract, and collaboration model instead of outdated promises.
+              Gerer Events is built to make the whole experience cleaner, before the RSVP, during check-in, and after the event when the photos, uploads, and guest memories start rolling in.
             </p>
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {[
-                'Richer image rhythm',
-                'Modern layered hero',
-                'More premium visual hierarchy',
-                'Honest current-product messaging',
+                'Branded RSVP pages that feel premium',
+                'Smoother arrivals with QR browser check-in',
+                'Cleaner team coordination with clear roles',
+                'Guest media collection that keeps the event alive',
               ].map((item) => (
                 <div key={item} className="rounded-[24px] border border-white/10 bg-white/5 px-4 py-4 text-sm text-white/82">
                   {item}
@@ -393,28 +393,28 @@ export default function LandingPage() {
               <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&q=80&w=1200" alt="Branded event registration" className="h-64 w-full object-cover" />
               <div className="p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-black/45">RSVP story</p>
-                <h3 className="mt-3 font-display text-2xl text-black">Branded registration that feels intentional</h3>
+                <h3 className="mt-3 font-display text-2xl text-black">Give guests a registration flow that feels worthy of the event</h3>
               </div>
             </div>
             <div className="overflow-hidden rounded-[34px] bg-white shadow-[0_18px_60px_rgba(0,0,0,0.06)] sm:translate-y-10">
               <img src="https://images.unsplash.com/photo-1496843916299-590492c751f4?auto=format&fit=crop&q=80&w=1200" alt="Team collaboration for events" className="h-64 w-full object-cover" />
               <div className="p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-black/45">Team workflow</p>
-                <h3 className="mt-3 font-display text-2xl text-black">Safer collaboration with role-aware controls</h3>
+                <h3 className="mt-3 font-display text-2xl text-black">Let every collaborator do their job without touching what they should not</h3>
               </div>
             </div>
             <div className="overflow-hidden rounded-[34px] bg-white shadow-[0_18px_60px_rgba(0,0,0,0.06)] sm:-translate-y-6">
               <img src="https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&q=80&w=1200" alt="Guests arriving at event" className="h-64 w-full object-cover" />
               <div className="p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-black/45">Arrival moment</p>
-                <h3 className="mt-3 font-display text-2xl text-black">QR entry flow that behaves like a real-world tool</h3>
+                <h3 className="mt-3 font-display text-2xl text-black">Move guests from queue to welcome in a few clean taps</h3>
               </div>
             </div>
             <div className="overflow-hidden rounded-[34px] bg-white shadow-[0_18px_60px_rgba(0,0,0,0.06)]">
               <img src="https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&q=80&w=1200" alt="Guests sharing event media" className="h-64 w-full object-cover" />
               <div className="p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-black/45">Afterglow</p>
-                <h3 className="mt-3 font-display text-2xl text-black">Guest media and event memory, with moderation when needed</h3>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-black/45">After the event</p>
+                <h3 className="mt-3 font-display text-2xl text-black">Keep the energy alive with guest uploads and shared event memories</h3>
               </div>
             </div>
           </motion.div>
