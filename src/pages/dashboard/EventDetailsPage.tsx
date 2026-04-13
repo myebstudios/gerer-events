@@ -158,6 +158,7 @@ export default function EventDetailsPage() {
       coverImageUrl = data.publicUrl;
     }
 
+    if (!canManageEvent) return pushToast('You do not have permission to edit this event.', 'error');
     const { error } = await supabase.from('events').update({
       title: editData.title,
       starts_at: new Date(editData.date).toISOString(),
@@ -169,7 +170,7 @@ export default function EventDetailsPage() {
       theme_color: editData.theme_color,
       typography_preset: editData.typography_preset,
       cover_image_url: coverImageUrl,
-    }).eq('id', event.id).eq('owner_id', user?.id);
+    }).eq('id', event.id);
     if (error) return pushToast(error.message, 'error');
     setIsEditing(false);
     pushToast('Event updated successfully.', 'success');
@@ -177,18 +178,21 @@ export default function EventDetailsPage() {
   };
 
   const handleStatusChange = async (newStatus: string) => {
-    const { error } = await supabase.from('events').update({ status: newStatus }).eq('id', event.id).eq('owner_id', user?.id);
+    if (!canManageEvent) return pushToast('You do not have permission to change event status.', 'error');
+    const { error } = await supabase.from('events').update({ status: newStatus }).eq('id', event.id);
     if (error) return pushToast(error.message, 'error');
     refresh();
   };
 
   const handleDeleteEvent = async () => {
-    const { error } = await supabase.from('events').delete().eq('id', event.id).eq('owner_id', user?.id);
+    if (!canManageEvent) return pushToast('You do not have permission to delete this event.', 'error');
+    const { error } = await supabase.from('events').delete().eq('id', event.id);
     if (error) return pushToast(error.message, 'error');
     navigate('/dashboard');
   };
 
   const handleDeleteGuest = async (guestId: string) => {
+    if (!canManageEvent) return pushToast('You do not have permission to remove guests from this event.', 'error');
     const { error } = await supabase.from('guests').delete().eq('id', guestId).eq('event_id', event.id);
     if (error) return pushToast(error.message, 'error');
     refresh();
