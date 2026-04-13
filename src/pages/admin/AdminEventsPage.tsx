@@ -1,9 +1,12 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import { writeAdminAuditLog } from '../../lib/adminAudit';
 import { useToast } from '../../contexts/ToastContext';
 
 export default function AdminEventsPage() {
+  const { user: adminUser } = useAuth();
   const { pushToast } = useToast();
   const [loading, setLoading] = React.useState(true);
   const [savingId, setSavingId] = React.useState<string | null>(null);
@@ -34,6 +37,9 @@ export default function AdminEventsPage() {
       const { error } = await supabase.from('events').update({ status }).eq('id', id);
       if (error) throw error;
       setEvents((current) => current.map((event) => (event.id === id ? { ...event, status } : event)));
+      if (adminUser?.id) {
+        await writeAdminAuditLog({ adminUserId: adminUser.id, action: 'event.status_updated', targetEventId: id, details: { status } });
+      }
       pushToast('Event status updated.', 'success');
     } catch (error: any) {
       pushToast(error.message || 'Failed to update event status', 'error');

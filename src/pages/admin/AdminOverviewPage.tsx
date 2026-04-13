@@ -1,17 +1,20 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { fetchAdminOverview } from '../../lib/admin';
+import { fetchAdminAuditLogs } from '../../lib/adminAudit';
 
 export default function AdminOverviewPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [data, setData] = React.useState<any>(null);
+  const [logs, setLogs] = React.useState<any[]>([]);
 
   React.useEffect(() => {
     const load = async () => {
       try {
-        const result = await fetchAdminOverview();
+        const [result, auditLogs] = await Promise.all([fetchAdminOverview(), fetchAdminAuditLogs()]);
         setData(result);
+        setLogs(auditLogs);
       } catch (err: any) {
         setError(err.message || 'Failed to load admin overview');
       } finally {
@@ -100,10 +103,14 @@ export default function AdminOverviewPage() {
           </section>
 
           <section className="rounded-[32px] border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="font-display text-2xl text-black">Operational notes</h2>
+            <h2 className="font-display text-2xl text-black">Recent admin activity</h2>
             <div className="mt-5 space-y-3 text-sm text-gray-600">
-              <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">Use the next admin pages to manage contract upgrades, inspect event health, and review user access without touching organizer UX.</div>
-              <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">Phase 1 is intentionally restrained: overview first, then users, contracts, and full event management.</div>
+              {logs.length ? logs.map((log) => (
+                <div key={log.id} className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+                  <p className="font-semibold text-black">{log.action}</p>
+                  <p className="mt-1 text-xs text-gray-500">{new Date(log.created_at).toLocaleString()}</p>
+                </div>
+              )) : <div className="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">No admin actions logged yet.</div>}
             </div>
           </section>
         </div>

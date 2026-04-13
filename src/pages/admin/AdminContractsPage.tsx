@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import { writeAdminAuditLog } from '../../lib/adminAudit';
 import { useToast } from '../../contexts/ToastContext';
 
 const contractStatusOptions = ['inactive', 'pending_contract', 'active_contract', 'expired_contract'];
@@ -11,6 +13,7 @@ const accessTierMap: Record<string, string> = {
 };
 
 export default function AdminContractsPage() {
+  const { user: adminUser } = useAuth();
   const { pushToast } = useToast();
   const [loading, setLoading] = React.useState(true);
   const [savingId, setSavingId] = React.useState<string | null>(null);
@@ -48,6 +51,9 @@ export default function AdminContractsPage() {
       const { error } = await supabase.from('profiles').update(patch).eq('id', profile.id);
       if (error) throw error;
       setProfiles((current) => current.map((item) => (item.id === profile.id ? { ...item, ...patch } : item)));
+      if (adminUser?.id) {
+        await writeAdminAuditLog({ adminUserId: adminUser.id, action: 'contract.updated', targetUserId: profile.id, details: patch });
+      }
       pushToast('Contract updated.', 'success');
     } catch (error: any) {
       pushToast(error.message || 'Failed to update contract', 'error');

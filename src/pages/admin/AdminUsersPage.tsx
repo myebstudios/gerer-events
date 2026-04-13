@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import { writeAdminAuditLog } from '../../lib/adminAudit';
 import { useToast } from '../../contexts/ToastContext';
 
 const accessTierOptions = ['free', 'pro', 'agency'];
@@ -7,11 +9,13 @@ const contractStatusOptions = ['inactive', 'pending_contract', 'active_contract'
 const roleOptions = ['user', 'admin'];
 
 export default function AdminUsersPage() {
+  const { user: adminUser } = useAuth();
   const { pushToast } = useToast();
   const [loading, setLoading] = React.useState(true);
   const [savingId, setSavingId] = React.useState<string | null>(null);
   const [users, setUsers] = React.useState<any[]>([]);
   const [query, setQuery] = React.useState('');
+  const [selectedUser, setSelectedUser] = React.useState<any | null>(null);
 
   const loadUsers = React.useCallback(async () => {
     setLoading(true);
@@ -40,6 +44,10 @@ export default function AdminUsersPage() {
       const { error } = await supabase.from('profiles').update(patch).eq('id', id);
       if (error) throw error;
       setUsers((current) => current.map((user) => (user.id === id ? { ...user, ...patch } : user)));
+      setSelectedUser((current: any) => current?.id === id ? { ...current, ...patch } : current);
+      if (adminUser?.id) {
+        await writeAdminAuditLog({ adminUserId: adminUser.id, action: 'profile.updated', targetUserId: id, details: patch });
+      }
       pushToast('User updated.', 'success');
     } catch (error: any) {
       pushToast(error.message || 'Failed to update user', 'error');
@@ -88,9 +96,11 @@ export default function AdminUsersPage() {
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="border-t border-gray-100 align-top">
                     <td className="px-6 py-4">
-                      <p className="font-semibold text-black">{user.full_name || 'Unnamed user'}</p>
-                      <p className="text-gray-500">{user.email || 'No email'}</p>
-                      <p className="mt-1 text-[11px] text-gray-400">{user.id}</p>
+                      <button type="button" onClick={() => setSelectedUser(user)} className="text-left">
+                        <p className="font-semibold text-black">{user.full_name || 'Unnamed user'}</p>
+                        <p className="text-gray-500">{user.email || 'No email'}</p>
+                        <p className="mt-1 text-[11px] text-gray-400">{user.id}</p>
+                      </button>
                     </td>
                     <td className="px-6 py-4">
                       <select
@@ -130,6 +140,20 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {selectedUser && (
+        <div className="mt-6 rounded-[32px] border border-gray-200 bg-white p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">User detail</p>
+          <h2 className="mt-3 font-display text-2xl text-black">{selectedUser.full_name || 'Unnamed user'}</h2>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 text-sm text-gray-600">
+            <div className="rounded-2xl bg-gray-50 px-4 py-3"><span className="font-semibold text-black">Email:</span> {selectedUser.email || 'No email'}</div>
+            <div className="rounded-2xl bg-gray-50 px-4 py-3"><span className="font-semibold text-black">Access tier:</span> {selectedUser.access_tier || 'free'}</div>
+            <div className="rounded-2xl bg-gray-50 px-4 py-3"><span className="font-semibold text-black">Contract:</span> {selectedUser.contract_status || 'inactive'}</div>
+            <div className="rounded-2xl bg-gray-50 px-4 py-3"><span className="font-semibold text-black">Role:</span> {selectedUser.role || 'user'}</div>
+            <div className="rounded-2xl bg-gray-50 px-4 py-3 md:col-span-2"><span className="font-semibold text-black">User ID:</span> {selectedUser.id}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
