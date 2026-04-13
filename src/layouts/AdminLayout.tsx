@@ -4,25 +4,40 @@ import { LayoutDashboard, Users, CalendarRange, FileBadge2, Shield, LogOut } fro
 import { Button } from '@heroui/react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { isAdminUser } from '../lib/admin';
+import { fetchCurrentUserAdminState, getAdminEmailFallback } from '../lib/admin';
 
 export default function AdminLayout() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
-      navigate('/login?next=/admin', { replace: true });
-      return;
-    }
-    if (!isAdminUser(user)) {
-      navigate('/dashboard', { replace: true });
-      return;
-    }
-    setLoading(false);
+    const checkAdmin = async () => {
+      if (authLoading) return;
+      if (!user) {
+        navigate('/login?next=/admin', { replace: true });
+        return;
+      }
+
+      try {
+        const allowed = await fetchCurrentUserAdminState(user.id);
+        setIsAdmin(allowed);
+        if (!allowed) {
+          navigate('/dashboard', { replace: true });
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to verify admin access', error);
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      setLoading(false);
+    };
+
+    void checkAdmin();
   }, [authLoading, user, navigate]);
 
   const navItems = [
@@ -64,7 +79,7 @@ export default function AdminLayout() {
 
           <div className="mt-8 rounded-[28px] border border-gray-200 bg-gray-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Signed in as</p>
-            <p className="mt-3 text-sm font-semibold text-black">{user?.user_metadata?.full_name || user?.email}</p>
+            <p className="mt-3 text-sm font-semibold text-black">{user?.user_metadata?.full_name || getAdminEmailFallback(user)}</p>
             <p className="text-xs text-gray-500">{user?.email}</p>
           </div>
 

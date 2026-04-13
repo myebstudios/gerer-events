@@ -1,8 +1,15 @@
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 
-export function isAdminUser(user: User | null | undefined) {
-  return user?.user_metadata?.role === 'admin';
+export async function fetchCurrentUserAdminState(userId: string) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .single();
+
+  if (error) throw error;
+  return data?.role === 'admin';
 }
 
 export async function fetchAdminOverview() {
@@ -18,22 +25,25 @@ export async function fetchAdminOverview() {
   if (guests.error) throw guests.error;
   if (media.error) throw media.error;
 
-  const checkedInCount = (guests.data || []).filter((guest) => guest.checked_in).length;
-  const pendingContracts = (profiles.data || []).filter((profile) => profile.contract_status === 'pending_contract').length;
-  const activeContracts = (profiles.data || []).filter((profile) => profile.contract_status === 'active_contract').length;
+  const guestRows = guests.data || [];
+  const profileRows = profiles.data || [];
 
   return {
     totals: {
       users: profiles.count || 0,
       events: events.count || 0,
       guests: guests.count || 0,
-      checkedIns: checkedInCount,
-      activeContracts,
-      pendingContracts,
+      checkedIns: guestRows.filter((guest) => guest.checked_in).length,
+      activeContracts: profileRows.filter((profile) => profile.contract_status === 'active_contract').length,
+      pendingContracts: profileRows.filter((profile) => profile.contract_status === 'pending_contract').length,
       mediaUploads: media.count || 0,
     },
-    profiles: profiles.data || [],
+    profiles: profileRows,
     events: events.data || [],
     media: media.data || [],
   };
+}
+
+export function getAdminEmailFallback(user: User | null | undefined) {
+  return user?.email || '';
 }
