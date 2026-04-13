@@ -9,6 +9,7 @@ import { useSupabaseEventDetails } from '../../hooks/useSupabaseEventDetails';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { getEventRole, canManageWithRole, canModerateMediaWithRole, canCheckInWithRole } from '../../lib/eventAccess';
+import { TEMPLATE_CATALOG, EVENT_TYPES, type EventType } from '../../lib/catalog';
 
 const safeFormatDate = (dateStr: string, endDateStr?: string, fmt = 'MMMM d, yyyy', fallback = 'TBD') => {
   try {
@@ -40,7 +41,7 @@ export default function EventDetailsPage() {
   const [activeTab, setActiveTab] = React.useState('overview');
   const [showQR, setShowQR] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
-  const [editData, setEditData] = React.useState({ title: '', date: '', endDate: '', location: '', description: '' });
+  const [editData, setEditData] = React.useState({ title: '', date: '', endDate: '', location: '', description: '', event_type: 'wedding', template_id: 'eternal-vows', theme_color: '#18181B', typography_preset: 'modern' });
   const [mediaFilter, setMediaFilter] = React.useState('all');
   const [eventRole, setEventRole] = React.useState<any>(null);
   const [inviteEmail, setInviteEmail] = React.useState('');
@@ -56,6 +57,10 @@ export default function EventDetailsPage() {
         endDate: event.ends_at ? new Date(event.ends_at).toISOString().slice(0, 16) : '',
         location: event.location,
         description: event.description ?? '',
+        event_type: event.event_type ?? 'wedding',
+        template_id: event.template_id ?? 'eternal-vows',
+        theme_color: event.theme_color ?? '#18181B',
+        typography_preset: event.typography_preset ?? 'modern',
       });
     }
   }, [event]);
@@ -128,6 +133,10 @@ export default function EventDetailsPage() {
       ends_at: editData.endDate ? new Date(editData.endDate).toISOString() : null,
       location: editData.location,
       description: editData.description || null,
+      event_type: editData.event_type,
+      template_id: editData.template_id,
+      theme_color: editData.theme_color,
+      typography_preset: editData.typography_preset,
     }).eq('id', event.id).eq('owner_id', user?.id);
     if (error) return pushToast(error.message, 'error');
     setIsEditing(false);
@@ -183,6 +192,15 @@ export default function EventDetailsPage() {
   const canManageEvent = canManageWithRole(eventRole);
   const canCheckInEvent = canCheckInWithRole(eventRole);
   const canModerateMedia = canModerateMediaWithRole(eventRole);
+  const themeColors = ['#18181B', '#e11d48', '#2563eb', '#16a34a', '#d97706', '#9333ea'];
+  const typographyPresets = [
+    { id: 'modern', label: 'Modern (Sans-serif)' },
+    { id: 'classic', label: 'Classic (Serif)' },
+    { id: 'playful', label: 'Playful (Display)' },
+  ];
+  const availableTemplates = TEMPLATE_CATALOG.filter((template) => template.supportedEventTypes.includes(editData.event_type as EventType));
+  const activeTemplate = availableTemplates.find((template) => template.id === editData.template_id) || availableTemplates[0];
+
   const statusColors: Record<string, string> = {
     draft: 'bg-text-subtle/10 text-text-subtle',
     published: 'bg-primary/10 text-primary',
@@ -253,14 +271,82 @@ export default function EventDetailsPage() {
               {canManageEvent ? (!isEditing ? <Button onPress={() => setIsEditing(true)} variant="bordered" size="sm" className="font-semibold rounded-full">Edit</Button> : <div className="flex flex-wrap gap-2"><Button onPress={() => setIsEditing(false)} variant="light" size="sm">Cancel</Button><Button onPress={handleSaveEdit} color="primary" size="sm">Save</Button></div>) : <span className="text-xs font-semibold uppercase tracking-wider text-text-subtle">View only</span>}
             </div>
             {isEditing ? (
-              <div className="space-y-4">
-                <Input value={editData.title} onValueChange={(v) => setEditData({ ...editData, title: v })} variant="bordered" label="Title" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input type="datetime-local" value={editData.date} onValueChange={(v) => setEditData({ ...editData, date: v })} variant="bordered" label="Start Date" />
-                  <Input type="datetime-local" value={editData.endDate} onValueChange={(v) => setEditData({ ...editData, endDate: v })} variant="bordered" label="End Date" />
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.2fr),minmax(280px,0.8fr)] gap-6 items-start">
+                  <div className="space-y-4">
+                    <Input value={editData.title} onValueChange={(v) => setEditData({ ...editData, title: v })} variant="bordered" label="Title" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Input type="datetime-local" value={editData.date} onValueChange={(v) => setEditData({ ...editData, date: v })} variant="bordered" label="Start Date" />
+                      <Input type="datetime-local" value={editData.endDate} onValueChange={(v) => setEditData({ ...editData, endDate: v })} variant="bordered" label="End Date" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Input value={editData.location} onValueChange={(v) => setEditData({ ...editData, location: v })} variant="bordered" label="Location" />
+                      <div>
+                        <label className="text-sm font-semibold text-text-main mb-2 block">Event Type</label>
+                        <select value={editData.event_type} onChange={(e) => {
+                          const nextType = e.target.value;
+                          const nextTemplate = TEMPLATE_CATALOG.find((template) => template.supportedEventTypes.includes(nextType as EventType));
+                          setEditData({ ...editData, event_type: nextType, template_id: nextTemplate?.id || editData.template_id });
+                        }} className="h-12 w-full rounded-xl border border-border bg-white px-4 text-sm font-medium text-text-main">
+                          {EVENT_TYPES.map((eventType) => <option key={eventType.id} value={eventType.id}>{eventType.label}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <Textarea value={editData.description} onValueChange={(v) => setEditData({ ...editData, description: v })} variant="bordered" minRows={4} label="Description" />
+                  </div>
+
+                  <div className="rounded-2xl border border-border bg-background/60 p-5 space-y-5">
+                    <div>
+                      <p className="text-sm font-semibold text-text-main mb-3">Theme Color</p>
+                      <div className="flex flex-wrap gap-3">
+                        {themeColors.map((color) => (
+                          <button key={color} type="button" onClick={() => setEditData({ ...editData, theme_color: color })} className={`w-10 h-10 rounded-full border-2 transition-all ${editData.theme_color === color ? 'border-black scale-110' : 'border-white shadow-sm'}`} style={{ backgroundColor: color }} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-semibold text-text-main mb-3">Typography</p>
+                      <select value={editData.typography_preset} onChange={(e) => setEditData({ ...editData, typography_preset: e.target.value })} className="h-12 w-full rounded-xl border border-border bg-white px-4 text-sm font-medium text-text-main">
+                        {typographyPresets.map((preset) => <option key={preset.id} value={preset.id}>{preset.label}</option>)}
+                      </select>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-semibold text-text-main mb-3">Layout Template</p>
+                      <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
+                        {availableTemplates.map((template) => (
+                          <button key={template.id} type="button" onClick={() => setEditData({ ...editData, template_id: template.id, theme_color: template.color, typography_preset: template.typographyPreset })} className={`w-full text-left rounded-2xl border p-4 transition-all ${editData.template_id === template.id ? 'border-black ring-1 ring-black shadow-sm bg-white' : 'border-border bg-white hover:border-primary/30'}`}>
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ backgroundColor: template.color }}>
+                                <span className="material-symbols-outlined text-base">{template.icon}</span>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-text-main">{template.name}</p>
+                                <p className="text-xs text-text-muted">{template.tone}</p>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <Input value={editData.location} onValueChange={(v) => setEditData({ ...editData, location: v })} variant="bordered" label="Location" />
-                <Textarea value={editData.description} onValueChange={(v) => setEditData({ ...editData, description: v })} variant="bordered" minRows={3} label="Description" />
+
+                <div className="rounded-2xl border border-border bg-background/40 p-5">
+                  <p className="text-sm font-semibold text-text-main mb-4">Quick theme preview</p>
+                  <div className="rounded-2xl overflow-hidden border border-border bg-white">
+                    <div className="p-6 text-white" style={{ backgroundColor: editData.theme_color }}>
+                      <p className="text-xs uppercase tracking-[0.3em] opacity-80 mb-2">{activeTemplate?.name || 'Template'}</p>
+                      <h4 className="text-2xl font-semibold">{editData.title || 'Your Event Title'}</h4>
+                      <p className="opacity-90 mt-2">{editData.location || 'Venue Location'}</p>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-sm text-text-muted">Typography: <span className="font-semibold text-text-main">{editData.typography_preset}</span></p>
+                      <p className="text-sm text-text-muted mt-2">Event type: <span className="font-semibold text-text-main capitalize">{editData.event_type}</span></p>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
